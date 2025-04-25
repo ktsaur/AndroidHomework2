@@ -3,6 +3,8 @@ package ru.itis.second_sem.di.module
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -16,6 +18,7 @@ import ru.itis.second_sem.domain.repository.WeatherRepository
 import javax.inject.Singleton
 
 @Module
+@InstallIn(SingletonComponent::class) //это значит что все зависимости будут помещены в синглтон компонент
 class DataModule {
 
     @Provides

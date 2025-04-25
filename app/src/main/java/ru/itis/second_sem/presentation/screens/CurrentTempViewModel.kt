@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -12,6 +13,7 @@ import ru.itis.second_sem.domain.model.WeatherModel
 import ru.itis.second_sem.domain.usecase.GetWeatherByCityNameUseCase
 import javax.inject.Inject
 
+@HiltViewModel
 class CurrentTempViewModel @Inject constructor(
     private val getCurrentWeatherUseCase: GetWeatherByCityNameUseCase,
     private val savedStateHandle: SavedStateHandle

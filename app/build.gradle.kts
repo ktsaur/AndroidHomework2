@@ -1,9 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("kotlin-parcelize")
-    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-    id("org.jetbrains.kotlin.kapt")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -75,9 +74,9 @@ dependencies {
     implementation(libs.http.logging.interceptor)
     implementation("androidx.compose.compiler:compiler:1.5.0")
     implementation("com.google.code.gson:gson:2.10.1")
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
-    implementation(libs.dagger)
-    kapt(libs.dagger.compiler)
+    implementation(libs.androidx.fragment)
+    implementation(libs.hilt)
+    ksp(libs.hilt.compiler)
     implementation(libs.converter.gson)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
