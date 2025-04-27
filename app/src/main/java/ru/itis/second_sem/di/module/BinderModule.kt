@@ -5,7 +5,9 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import ru.itis.second_sem.data.repository.ForecastRepositoryImpl
 import ru.itis.second_sem.data.repository.WeatherRepositoryImpl
+import ru.itis.second_sem.domain.repository.ForecastRepository
 import ru.itis.second_sem.domain.repository.WeatherRepository
 import ru.itis.second_sem.presentation.utils.MultibindingFactorySample
 import javax.inject.Singleton
@@ -16,6 +18,10 @@ interface BinderModule { //модуль, чтобы связывать клас�
     @Binds
     @Singleton
     fun bindWeatherRepositoryToImpl(impl: WeatherRepositoryImpl): WeatherRepository
+
+    @Binds
+    @Singleton
+    fun bindForecastRepositoryToImpl(impl: ForecastRepositoryImpl): ForecastRepository
 
     @Binds
     fun bindMultibindingFactoryToImpl(impl: MultibindingFactorySample):ViewModelProvider.Factory

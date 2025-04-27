@@ -23,8 +23,7 @@ import ru.itis.second_sem.presentation.screens.CurrentTempFragment
 fun CurrentTempFragmentCompose(
     value: String,
     onClick: () -> Unit,
-    onValueChange: (String) -> Unit,
-    temperature: String?
+    onValueChange: (String) -> Unit
 ) {
     Scaffold { padding ->
         Column(
@@ -46,13 +45,6 @@ fun CurrentTempFragmentCompose(
             ) {
                 Text("Запросить")
             }
-
-            if (temperature != null) {
-                Text (
-                    text= "Температура: $temperature°C",
-                    modifier = Modifier.padding(top = 20.dp)
-                )
-            }
         }
     }
 }
@@ -60,5 +52,5 @@ fun CurrentTempFragmentCompose(
 @Preview
 @Composable
 fun CurrentTempFragmentPreview() {
-    CurrentTempFragmentCompose(value = "", onClick = {}, onValueChange = {}, temperature = null)
+    CurrentTempFragmentCompose(value = "", onClick = {}, onValueChange = {})
 }

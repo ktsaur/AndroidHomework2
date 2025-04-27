@@ -13,6 +13,7 @@ import ru.itis.second_sem.BuildConfig.OPEN_WEATHER_API_URL
 import ru.itis.second_sem.data.mapper.WeatherResponseMapper
 import ru.itis.second_sem.data.remote.OpenWeatherApi
 import ru.itis.second_sem.data.remote.interceptor.AppIdInterceptor
+import ru.itis.second_sem.data.remote.interceptor.MetricInterceptor
 import ru.itis.second_sem.data.repository.WeatherRepositoryImpl
 import ru.itis.second_sem.domain.repository.WeatherRepository
 import javax.inject.Singleton
@@ -30,13 +31,7 @@ class DataModule {
     fun provideOkHttpCleint(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(AppIdInterceptor())
-            .addInterceptor { chain ->
-                val url = chain.request().url.newBuilder()
-                    .addQueryParameter("", "")
-
-                val request = chain.request().newBuilder().url(url.build())
-                chain.proceed(request.build())
-            }
+            .addInterceptor(MetricInterceptor())
             .addInterceptor(HttpLoggingInterceptor().apply {
                 setLevel(HttpLoggingInterceptor.Level.BODY)
             })
@@ -54,8 +49,6 @@ class DataModule {
             .client(okHttpClient)
             .addConverterFactory(converterFactory)
             .build()
-
         return retrofit.create(OpenWeatherApi::class.java)
     }
-
 }

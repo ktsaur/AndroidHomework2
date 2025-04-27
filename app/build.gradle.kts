@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.bundles.compose.base)
     implementation(libs.androidx.ui.tooling.preview.android)
     implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.navigation.fragment.ktx)
     debugImplementation(libs.androidx.ui.tooling)
     implementation(libs.okhttp)
     implementation(libs.http.logging.interceptor)
