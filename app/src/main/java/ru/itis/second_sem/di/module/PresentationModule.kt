@@ -14,12 +14,4 @@ import dagger.multibindings.Multibinds
 @InstallIn(SingletonComponent::class)
 class PresentationModule {
 
-//    @Provides
-//    @IntoMap
-//    //в качестве ключа мапы используется название класса вью модели, потому что по названию класса вью модельки хранаться в модел сторе
-//    @ViewModelKey(CurrentTempViewModel::class)
-//    fun bindCurrentTempViewModel(
-//        vm:CurrentTempViewModel
-//    ) : ViewModel = vm
-
 }

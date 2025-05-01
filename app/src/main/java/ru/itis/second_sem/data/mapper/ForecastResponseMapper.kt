@@ -18,8 +18,8 @@ class ForecastResponseMapper @Inject constructor(){
                     feelsLike = weather.mainData?.feelsLike ?: 0F,
                     tempMin = weather.mainData?.tempMin ?: 0F,
                     tempMax = weather.mainData?.tempMax ?: 0F,
-                    mainDesc = weather.weatherCondition?.firstOrNull()?.mainDesc,
-                    description = weather.weatherCondition?.firstOrNull()?.description
+                    mainDesc = weather.weatherCondition?.firstOrNull()?.mainDesc ?: "",
+                    description = weather.weatherCondition?.firstOrNull()?.description ?: ""
                 )
         } ?: emptyList()
     }

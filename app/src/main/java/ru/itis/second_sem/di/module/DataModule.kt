@@ -10,6 +10,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.itis.second_sem.BuildConfig.OPEN_WEATHER_API_URL
+import ru.itis.second_sem.data.logger.AppLogger
 import ru.itis.second_sem.data.mapper.WeatherResponseMapper
 import ru.itis.second_sem.data.remote.OpenWeatherApi
 import ru.itis.second_sem.data.remote.interceptor.AppIdInterceptor
@@ -23,18 +24,23 @@ import javax.inject.Singleton
 class DataModule {
 
     @Provides
+    fun provideAppLogger(): AppLogger{
+        return AppLogger()
+    }
+
+    @Provides
     fun provideGsonConverterFactory(): GsonConverterFactory {
         return GsonConverterFactory.create()
     }
 
     @Provides
-    fun provideOkHttpCleint(): OkHttpClient {
+    fun provideOkHttpCleint(appLogger: AppLogger): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(AppIdInterceptor())
             .addInterceptor(MetricInterceptor())
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                setLevel(HttpLoggingInterceptor.Level.BODY)
-            })
+            .apply {
+                appLogger.logBody(this)
+            }
             .build()
     }
 

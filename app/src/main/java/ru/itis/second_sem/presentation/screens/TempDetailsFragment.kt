@@ -1,9 +1,7 @@
 package ru.itis.second_sem.presentation.screens
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.fragment.app.viewModels
@@ -11,6 +9,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import ru.itis.second_sem.R
 import ru.itis.second_sem.databinding.FragmentTempdetailsBinding
+import ru.itis.second_sem.presentation.ui.ErrorAlertDialog
 import ru.itis.second_sem.presentation.ui.TempDetailsFragment
 
 @AndroidEntryPoint
@@ -23,30 +22,29 @@ class TempDetailsFragment : BaseFragment(R.layout.fragment_tempdetails) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val city = arguments?.getString("ARG_CITY") ?: ""
         super.onViewCreated(view, savedInstanceState)
+        viewModel.getForecast(city = city)
+        viewModel.getCurrentTemp(city = city)
+
         initViews(city = city)
     }
 
     fun initViews(city: String) {
         viewBinding.composeContainerId.setContent {
-            viewModel.getForecast(city = city)
-            viewModel.getCurrentTemp(city = city)
-
             val uiState by viewModel.uiState.collectAsState()
 
-//            if(uiState?.loading == true) {
-//                CircularProgressIndicator()
-//            } else {
-                if (uiState?.forecast?.isNotEmpty() == true) {
+            when{
+                uiState?.error != null -> {
+                    ErrorAlertDialog(
+                        ex = uiState?.error ?: "Неизвестная ошибка" ,
+                        onConfirmBack = { parentFragmentManager.popBackStack() } )
+                }
+                uiState?.weather != null && uiState?.forecast?.isNotEmpty() == true -> {
                     TempDetailsFragment(
                         city = city,
-                        temperature = uiState?.weather?.currentTemp,
-                        description = uiState?.weather?.weatherDescription,
-                        forecast = uiState?.forecast
+                        weatherUIState = uiState!!
                     )
-                } else {
-                    Log.i("TEST-TAG", "UI State is null or list forecast is empty")
                 }
-//            }
+            }
         }
     }
 
