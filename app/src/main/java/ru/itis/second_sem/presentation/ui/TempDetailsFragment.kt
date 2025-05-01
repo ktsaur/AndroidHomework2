@@ -63,6 +63,9 @@ fun TempDetailsFragment(city: String, weatherUIState: WeatherUIState?) {
         delay(3000)
         isLoading = false
     }
+
+    val listForecasts = splitForecast(weatherUIState?.forecast ?: emptyList())
+
     Scaffold(containerColor = colorResource(id = R.color.blue)) { padding ->
         Column(
             modifier = Modifier
@@ -79,120 +82,46 @@ fun TempDetailsFragment(city: String, weatherUIState: WeatherUIState?) {
                     )
                 }
             )
-            Box(
+            ForecastSection(title = stringResource(id = R.string.first_day), forecast = listForecasts[0], isLoading = isLoading)
+            ForecastSection(title = stringResource(id = R.string.second_day), forecast = listForecasts[1], isLoading = isLoading)
+            ForecastSection(title = stringResource(id = R.string.third_day), forecast = listForecasts[2], isLoading = isLoading)
+        }
+    }
+}
+
+@Composable
+fun ForecastSection(title: String, forecast: List<ForecastModel>, isLoading: Boolean) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 36.dp)
+    ) {
+        Text(
+            text = title,
+            style = TextStyle(
+                color = Color.DarkGray,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+        Card(
+            modifier = Modifier.padding(top = 30.dp),
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.elevatedCardElevation(6.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 36.dp)
+                    .padding(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = stringResource(id = R.string.first_day),
-                    style = TextStyle(
-                        color = Color.DarkGray,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-                Card(
-                    modifier = Modifier.padding(top = 30.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.elevatedCardElevation(6.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                ) {
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        if (weatherUIState?.forecast?.isNotEmpty() == true) {
-                            weatherUIState.forecast.let {
-                                itemsIndexed(
-                                    it.subList(0, 8)
-                                ) { _, item ->
-                                    ShimmerListItem(
-                                        isLoading = isLoading,
-                                        contentAfterLoading = { ItemRow(forecastModel = item) })
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 36.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.second_day),
-                    style = TextStyle(
-                        color = Color.DarkGray,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-                Card(
-                    modifier = Modifier.padding(top = 30.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.elevatedCardElevation(6.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                ) {
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        if (weatherUIState?.forecast?.isNotEmpty() == true) {
-                            weatherUIState.forecast.let {
-                                itemsIndexed(
-                                    it.subList(8, 16)
-                                ) { _, item ->
-                                    ShimmerListItem(
-                                        isLoading = isLoading,
-                                        contentAfterLoading = { ItemRow(forecastModel = item) })
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 36.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.third_day),
-                    style = TextStyle(
-                        color = Color.DarkGray,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-                Card(
-                    modifier = Modifier.padding(top = 30.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.elevatedCardElevation(6.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                ) {
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        if (weatherUIState?.forecast?.isNotEmpty() == true) {
-                            weatherUIState.forecast.let {
-                                itemsIndexed(
-                                    it.subList(16, 24)
-                                ) { _, item ->
-                                    ShimmerListItem(
-                                        isLoading = isLoading,
-                                        contentAfterLoading = { ItemRow(forecastModel = item) })
-                                }
-                            }
-                        }
+                if (forecast.isNotEmpty()) {
+                    itemsIndexed(forecast) { _, item ->
+                        ShimmerListItem(
+                            isLoading = isLoading,
+                            contentAfterLoading = { ItemRow(forecastModel = item) }
+                        )
                     }
                 }
             }
@@ -390,6 +319,17 @@ fun ErrorAlertDialog(ex: String, onConfirmBack: () -> Unit) {
         },
         title = { Text(text = stringResource(id = R.string.error_title)) },
         text = { Text(text = ex) }
+    )
+}
+
+private fun splitForecast(forecast: List<ForecastModel>): List<List<ForecastModel>> {
+    val indicesOfMidnight = forecast.mapIndexedNotNull { index, forecastModel ->
+        if (forecastModel.dt == "00:00") index else null
+    }
+    return listOf(
+        forecast.take(indicesOfMidnight[0]),
+        forecast.drop(indicesOfMidnight[0]).take(indicesOfMidnight[1] - indicesOfMidnight[0]),
+        forecast.drop(indicesOfMidnight[1]).take(indicesOfMidnight[2] - indicesOfMidnight[1])
     )
 }
 
