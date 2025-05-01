@@ -21,9 +21,6 @@ android {
         defaultConfig {
             buildConfigField("String", "OPEN_WEATHER_API_URL", "\"https://api.openweathermap.org/data/2.5/\"")
         }
-        defaultConfig {
-            buildConfigField("String", "OPEN_WEATHER_API_KEY", "\"d9990220ce61da50cdc4fa13b0ae4a84\"")
-        }
     }
 
     buildTypes {

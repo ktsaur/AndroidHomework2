@@ -19,7 +19,7 @@ inline fun <T> Flow<T>.observe(
     crossinline block: (T) -> Unit
 ): Job {
     /*
-    lifecycleOwner - код не запускается, если вьюшка уничтожена.
+    lifecycleOwner - код не запускается, если вьюшка уничтожена
     если приложение на он стоп и он пауз, то данные не коллектятся
     lifecycleState - состояние жизненного цикла компонента
     */

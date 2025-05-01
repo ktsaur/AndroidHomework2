@@ -36,7 +36,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -83,7 +85,7 @@ fun TempDetailsFragment(city: String, weatherUIState: WeatherUIState?) {
                     .padding(top = 36.dp)
             ) {
                 Text(
-                    text = "Первые сутки",
+                    text = stringResource(id = R.string.first_day),
                     style = TextStyle(
                         color = Color.DarkGray,
                         fontSize = 20.sp,
@@ -122,7 +124,7 @@ fun TempDetailsFragment(city: String, weatherUIState: WeatherUIState?) {
                     .padding(top = 36.dp)
             ) {
                 Text(
-                    text = "Вторые сутки",
+                    text = stringResource(id = R.string.second_day),
                     style = TextStyle(
                         color = Color.DarkGray,
                         fontSize = 20.sp,
@@ -161,7 +163,7 @@ fun TempDetailsFragment(city: String, weatherUIState: WeatherUIState?) {
                     .padding(top = 36.dp)
             ) {
                 Text(
-                    text = "Третьи сутки",
+                    text = stringResource(id = R.string.third_day),
                     style = TextStyle(
                         color = Color.DarkGray,
                         fontSize = 20.sp,
@@ -227,17 +229,22 @@ fun ItemRow(forecastModel: ForecastModel) {
             onDismissRequest = { openDialog = false },
             confirmButton = { 
                 TextButton(onClick = { openDialog = false }) {
-                    Text(text = "OK")
+                    Text(text = stringResource(id = R.string.ok))
                 }
             },
-            title = { Text(text = "Detail temperature") },
-            text = { Text(text = "time: ${forecastModel.dt} \n" +
-                    "temp: ${forecastModel.temp.toInt()} \n" +
-                    "feels like: ${forecastModel.feelsLike.toInt()} \n" +
-                    "max temp: ${forecastModel.tempMax.toInt()} \n" +
-                    "min temp: ${forecastModel.tempMin.toInt()} \n" +
-                    "description: ${forecastModel.mainDesc} \n"
-            ) }
+            title = { Text(text = stringResource(id = R.string.detail_temperature)) },
+            text = {
+                Text(
+                    text = buildString {
+                        appendLine(stringResource(R.string.time, forecastModel.dt))
+                        appendLine(stringResource(R.string.temp, forecastModel.temp.toInt()))
+                        appendLine(stringResource(R.string.feels_like, forecastModel.feelsLike.toInt()))
+                        appendLine(stringResource(R.string.max_temp, forecastModel.tempMax.toInt()))
+                        appendLine(stringResource(R.string.min_temp, forecastModel.tempMin.toInt()))
+                        appendLine(stringResource(R.string.description, forecastModel.mainDesc))
+                    }
+                )
+            }
         )
     }
 }
@@ -277,7 +284,9 @@ fun ShimmerTempCard(
             elevation = CardDefaults.elevatedCardElevation(6.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             border = BorderStroke(1.dp, Color.LightGray),
-        ) { }
+        ) {
+            Box(modifier = Modifier.background(color = colorResource(id = R.color.white)))
+        }
     } else {
         contentAfterLoading()
     }
@@ -304,7 +313,7 @@ fun TempMainCard(city: String, weatherUIState: WeatherUIState?) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Temp in $city",
+                    text = stringResource(id = R.string.temp_in_city, city),
                     style = TextStyle(
                         color = Color.DarkGray,
                         fontSize = 26.sp,
@@ -376,10 +385,10 @@ fun ErrorAlertDialog(ex: String, onConfirmBack: () -> Unit) {
                     onConfirmBack()
                 }
             ) {
-                Text(text = "OK")
+                Text(text = stringResource(id = R.string.ok))
             }
         },
-        title = { Text(text = "Ошибка") },
+        title = { Text(text = stringResource(id = R.string.error_title)) },
         text = { Text(text = ex) }
     )
 }

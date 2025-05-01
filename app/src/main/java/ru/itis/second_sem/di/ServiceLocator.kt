@@ -1,3 +1,4 @@
+/*
 package ru.itis.second_sem.di
 
 import kotlinx.coroutines.Dispatchers
@@ -68,4 +69,4 @@ object ServiceLocator {
         }
         return openWeatherApi ?: throw IllegalStateException()
     }
-}
+}*/
