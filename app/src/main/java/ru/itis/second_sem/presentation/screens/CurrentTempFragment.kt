@@ -49,4 +49,5 @@ class CurrentTempFragment : BaseFragment(R.layout.fragment_current_temp) {
             .replace(R.id.main_container, tempDetailFragment)
             .addToBackStack(null).commit()
     }
+
 }

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    kotlin("plugin.serialization")
 }
 
 android {
@@ -20,6 +21,7 @@ android {
 
         defaultConfig {
             buildConfigField("String", "OPEN_WEATHER_API_URL", "\"https://api.openweathermap.org/data/2.5/\"")
+            buildConfigField("int", "DB_VERSION", "1")
         }
     }
 
@@ -71,11 +73,15 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.http.logging.interceptor)
     implementation("androidx.compose.compiler:compiler:1.5.0")
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.gson)
+    implementation(libs.room)
+    implementation(libs.room.ktx)
     implementation(libs.androidx.fragment)
     implementation(libs.hilt)
-    ksp(libs.hilt.compiler)
     implementation(libs.converter.gson)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    ksp(libs.hilt.compiler)
+    ksp(libs.room.ksp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

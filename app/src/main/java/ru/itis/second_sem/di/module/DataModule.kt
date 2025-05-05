@@ -1,15 +1,21 @@
 package ru.itis.second_sem.di.module
 
+import android.content.Context
+import androidx.room.PrimaryKey
+import androidx.room.Room
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.itis.second_sem.BuildConfig.OPEN_WEATHER_API_URL
+import ru.itis.second_sem.data.database.InceptionDatabase
+import ru.itis.second_sem.data.database.migrations.Migration_1_2
 import ru.itis.second_sem.data.logger.AppLogger
 import ru.itis.second_sem.data.mapper.WeatherResponseMapper
 import ru.itis.second_sem.data.remote.OpenWeatherApi
@@ -24,7 +30,7 @@ import javax.inject.Singleton
 class DataModule {
 
     @Provides
-    fun provideAppLogger(): AppLogger{
+    fun provideAppLogger(): AppLogger {
         return AppLogger()
     }
 
@@ -56,5 +62,17 @@ class DataModule {
             .addConverterFactory(converterFactory)
             .build()
         return retrofit.create(OpenWeatherApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDatabaseInstance(@ApplicationContext ctx: Context): InceptionDatabase {
+        return Room.databaseBuilder(ctx, InceptionDatabase::class.java, DATABASE_NAME)
+            .addMigrations(Migration_1_2())
+            .build()
+    }
+
+    companion object {
+        private const val DATABASE_NAME = "InceptionDB"
     }
 }

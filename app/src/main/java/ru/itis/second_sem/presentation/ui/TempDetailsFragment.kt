@@ -1,5 +1,6 @@
 package ru.itis.second_sem.presentation.ui
 
+import android.content.Context
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -47,10 +48,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getColor
 import kotlinx.coroutines.delay
+import retrofit2.HttpException
 import ru.itis.second_sem.R
 import ru.itis.second_sem.domain.model.ForecastModel
 import ru.itis.second_sem.domain.model.WeatherModel
 import ru.itis.second_sem.presentation.uiState.WeatherUIState
+import ru.itis.second_sem.presentation.utils.CityValidationException
+import java.io.IOException
 
 
 @Composable
@@ -303,7 +307,7 @@ fun Modifier.shimmerEffect(): Modifier = composed {
 
 
 @Composable
-fun ErrorAlertDialog(ex: String, onConfirmBack: () -> Unit) {
+fun ErrorAlertDialog(ex: Throwable, context: Context, onConfirmBack: () -> Unit) {
     var openDialog by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = { openDialog = false },
@@ -318,7 +322,7 @@ fun ErrorAlertDialog(ex: String, onConfirmBack: () -> Unit) {
             }
         },
         title = { Text(text = stringResource(id = R.string.error_title)) },
-        text = { Text(text = ex) }
+        text = { Text(text = getErrorMessage(ex = ex, context = context)) }
     )
 }
 
@@ -331,6 +335,21 @@ private fun splitForecast(forecast: List<ForecastModel>): List<List<ForecastMode
         forecast.drop(indicesOfMidnight[0]).take(indicesOfMidnight[1] - indicesOfMidnight[0]),
         forecast.drop(indicesOfMidnight[1]).take(indicesOfMidnight[2] - indicesOfMidnight[1])
     )
+}
+
+private fun getErrorMessage(ex: Throwable, context: Context): String {
+    return when (ex) {
+        is HttpException -> {
+            when (ex.code()) {
+                401 -> context.getString(R.string.error_authentication)
+                404 -> context.getString(R.string.error_city_not_found)
+                else -> context.getString(R.string.error_server, ex.code())
+            }
+        }
+        is IOException -> context.getString(R.string.error_connection)
+        is CityValidationException -> context.getString(R.string.error_invalid_capitalization)
+        else -> context.getString(R.string.error_unknown)
+    }
 }
 
 
