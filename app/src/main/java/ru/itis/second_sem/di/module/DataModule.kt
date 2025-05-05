@@ -16,6 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ru.itis.second_sem.BuildConfig.OPEN_WEATHER_API_URL
 import ru.itis.second_sem.data.database.InceptionDatabase
 import ru.itis.second_sem.data.database.migrations.Migration_1_2
+import ru.itis.second_sem.data.database.migrations.Migration_2_3
 import ru.itis.second_sem.data.logger.AppLogger
 import ru.itis.second_sem.data.mapper.WeatherResponseMapper
 import ru.itis.second_sem.data.remote.OpenWeatherApi
@@ -68,7 +69,10 @@ class DataModule {
     @Singleton
     fun provideDatabaseInstance(@ApplicationContext ctx: Context): InceptionDatabase {
         return Room.databaseBuilder(ctx, InceptionDatabase::class.java, DATABASE_NAME)
-            .addMigrations(Migration_1_2())
+            .addMigrations(
+                Migration_1_2(),
+                Migration_2_3()
+            )
             .build()
     }
 

@@ -11,16 +11,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.itis.second_sem.data.database.InceptionDatabase
+import ru.itis.second_sem.data.database.entity.QueryHistoryEntity
 import ru.itis.second_sem.data.database.entity.WeatherApiEntity
-import ru.itis.second_sem.data.mapper.toData
-import ru.itis.second_sem.data.mapper.toDomain
-import ru.itis.second_sem.domain.model.ForecastModel
-import ru.itis.second_sem.domain.model.WeatherModel
 import ru.itis.second_sem.domain.usecase.GetForecastByCityNameUseCase
 import ru.itis.second_sem.domain.usecase.GetWeatherByCityNameUseCase
 import ru.itis.second_sem.presentation.uiState.WeatherUIState
 import ru.itis.second_sem.presentation.utils.CityValidationException
+import ru.itis.second_sem.presentation.utils.toData
+import ru.itis.second_sem.presentation.utils.toDomain
 import javax.inject.Inject
+import kotlin.math.abs
 
 @HiltViewModel
 class TempDetailsViewModel @Inject constructor(
@@ -35,9 +35,38 @@ class TempDetailsViewModel @Inject constructor(
     fun getForecast(city: String) {
         if (city.firstOrNull()?.isLowerCase() == true) {
             _uiState.update { it.copy(error = CityValidationException()) }
-        } else {
+            return
+        }
+
+        viewModelScope.launch {
             _uiState.update { it.copy(error = null) }
-            viewModelScope.launch {
+
+            val lastTimestep = withContext(Dispatchers.IO) {
+                database.queryHistoryDao.getLastQueryForCity(city = city)
+            }
+
+            val shouldFetchFromApi = withContext(Dispatchers.IO) {
+                if (lastTimestep == null) {
+                    return@withContext true
+                }
+                val countBetween =
+                    database.queryHistoryDao.countQueryBetween(
+                        start = lastTimestep,
+                        end = System.currentTimeMillis()
+                    )
+                Log.d("TIMESTAMPS", "timestamp = $lastTimestep")
+                Log.d("countQueryBetween", "$countBetween")
+                return@withContext (abs(lastTimestep - System.currentTimeMillis()) >= 5 * 60 * 1000 || countBetween >= 3)
+            }
+
+            if (shouldFetchFromApi) {
+                fetchFromApi(city = city)
+            } else {
+                fetchFromDb(city = city)
+            }
+            /*val weatherApiEntity =
+                withContext(Dispatchers.IO) { database.weatherApiDao.getWeatherApi(city = city) }
+            if (weatherApiEntity == null || currentTime - weatherApiEntity.timestamp >= 5 * 60 * 1000) { //+ условие что между текущим и прошлым три и более городов
                 runCatching {
                     val forecast = getForecastByCityNameUseCase.invoke(city = city)
                     val weather = getWeatherByCityNameUseCase.invoke(city = city)
@@ -50,91 +79,87 @@ class TempDetailsViewModel @Inject constructor(
                             error = null
                         )
                     }
-//                    saveWeatherResponse(city = city, weather = weather, forecast = forecast)
+                    withContext(Dispatchers.IO) {
+                        val weatherApiEntity =
+                            WeatherApiEntity(
+                                city = city,
+                                currentTemp = weather.toData(),
+                                forecast = forecast.map { it.toData() },
+                                timestamp = System.currentTimeMillis()
+                            )
+                        database.weatherApiDao.saveWeatherApi(weatherApiEntity)
+                    }
                 }.onFailure { ex ->
                     _uiState.update { it.copy(error = ex) }
                 }
-            }
-        }
-    }
-
-
-    fun getForecast2(city: String) {
-        if (city.firstOrNull()?.isLowerCase() == true) {
-            _uiState.update { it.copy(error = CityValidationException()) }
-        } else {
-            viewModelScope.launch {
-                _uiState.update { it.copy(error = null) }
-                val weatherApiEntity =
-                    withContext(Dispatchers.IO) { database.weatherApiDao.getWeatherApi(city = city) }
-                val currentTime = System.currentTimeMillis()
-                if (weatherApiEntity == null || currentTime - weatherApiEntity.timestamp >= 5 * 60 * 1000) {
-                    runCatching {
-                        val forecast = getForecastByCityNameUseCase.invoke(city = city)
-                        val weather = getWeatherByCityNameUseCase.invoke(city = city)
-                        Pair(forecast, weather)
-                    }.onSuccess { (forecast, weather) ->
-                        _uiState.update {
-                            it.copy(
-                                forecast = forecast,
-                                weather = weather,
-                                error = null
-                            )
-                        }
-                        withContext(Dispatchers.IO) {
-                            val weatherApiEntity =
-                                WeatherApiEntity(
-                                    city = city,
-                                    currentTemp = weather.toData(),
-                                    forecast = forecast.map { it.toData() },
-                                    timestamp = System.currentTimeMillis()
-                                )
-                            database.weatherApiDao.saveWeatherApi(weatherApiEntity)
-                        }
-                    }.onFailure { ex ->
-                        _uiState.update { it.copy(error = ex) }
-                    }
-                } else {
-                    _uiState.update {
-                        it.copy(
-                            forecast = weatherApiEntity.forecast.toDomain(),
-                            weather = weatherApiEntity.currentTemp.toDomain(),
-                            error = null
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-  /*  fun saveWeatherResponse(city: String, weather: WeatherModel, forecast: List<ForecastModel>) {
-        viewModelScope.launch {
-            val weatherData = weather.toData()
-            val forecastData = forecast.map { it.toData() }
-            val weatherApiEntity =
-                WeatherApiEntity(
-                    city = city,
-                    currentTemp = weatherData,
-                    forecast = forecastData,
-                    timestamp =
-                )
-            database.weatherApiDao.saveWeatherApi(weatherApiEntity)
-        }
-    }*/
-
-
-    /*fun getCurrentTemp(city: String) {
-            _uiState.update { it?.copy(error = null) }
-            viewModelScope.launch {
-                runCatching {
-                    getWeatherByCityNameUseCase.invoke(city = city)
-                }.onSuccess {  weatherModel ->
-                    _uiState.update { it?.copy(weather = weatherModel, error = null) }
-                }.onFailure { ex ->
-                    _uiState.update { it?.copy( error = getErrorMessage(ex)) }
+            } else {
+                _uiState.update {
+                    it.copy(
+                        forecast = weatherApiEntity.forecast.toDomain(),
+                        weather = weatherApiEntity.currentTemp.toDomain(),
+                        error = null
+                    )
                 }
             }
         }*/
+        }
+    }
 
+    private suspend fun insertQueryHistory(query: QueryHistoryEntity) {
+        withContext(Dispatchers.IO) { database.queryHistoryDao.insertQuery(queryHistoryEntity = query) }
+    }
+
+    private suspend fun fetchFromApi(city: String) {
+        runCatching {
+            val forecast = getForecastByCityNameUseCase.invoke(city = city)
+            val weather = getWeatherByCityNameUseCase.invoke(city = city)
+            Pair(forecast, weather)
+        }.onSuccess { (forecast, weather) ->
+            _uiState.update {
+                it.copy(
+                    forecast = forecast,
+                    weather = weather,
+                    error = null
+                )
+            }
+            withContext(Dispatchers.IO) {
+                val weatherApiEntity =
+                    WeatherApiEntity(
+                        city = city,
+                        currentTemp = weather.toData(),
+                        forecast = forecast.map { it.toData() },
+                    )
+                database.weatherApiDao.insertWeatherApi(weatherApiEntity)
+            }
+            insertQueryHistory(
+                QueryHistoryEntity(
+                    city = city,
+                    timestamp = System.currentTimeMillis()
+                )
+            )
+        }.onFailure { ex ->
+            _uiState.update { it.copy(error = ex) }
+        }
+    }
+
+    private suspend fun fetchFromDb(city: String) {
+        withContext(Dispatchers.IO) {
+            database.weatherApiDao.getWeatherApi(city)
+        }?.let { weatherApiEntity ->
+            _uiState.update {
+                it.copy(
+                    forecast = weatherApiEntity.forecast.toDomain(),
+                    weather = weatherApiEntity.currentTemp.toDomain(),
+                    error = null
+                )
+            }
+            insertQueryHistory(
+                QueryHistoryEntity(
+                    city = city,
+                    timestamp = System.currentTimeMillis()
+                )
+            )
+        }
+    }
 
 }

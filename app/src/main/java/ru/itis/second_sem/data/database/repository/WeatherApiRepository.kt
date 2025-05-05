@@ -14,7 +14,7 @@ class WeatherApiRepository @Inject constructor(
     }
 
     suspend fun saveWeatherApi(weatherApiEntity: WeatherApiEntity) {
-        weatherApiDao.saveWeatherApi(weatherApiEntity = weatherApiEntity)
+        weatherApiDao.insertWeatherApi(weatherApiEntity = weatherApiEntity)
     }
 
     suspend fun updateWeatherApi(city: String, currentTemp: WeatherDataModel, forecast: List<ForecastDataModel>) {

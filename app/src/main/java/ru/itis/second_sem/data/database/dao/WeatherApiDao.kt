@@ -12,7 +12,7 @@ import ru.itis.second_sem.data.database.model.WeatherDataModel
 interface WeatherApiDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveWeatherApi(weatherApiEntity: WeatherApiEntity)
+    suspend fun insertWeatherApi(weatherApiEntity: WeatherApiEntity)
 
     @Query("SELECT * FROM weatherApi WHERE city = :city")
     suspend fun getWeatherApi(city: String): WeatherApiEntity?

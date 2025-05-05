@@ -12,7 +12,6 @@ import ru.itis.second_sem.R
 import ru.itis.second_sem.databinding.FragmentTempdetailsBinding
 import ru.itis.second_sem.presentation.ui.ErrorAlertDialog
 import ru.itis.second_sem.presentation.ui.TempDetailsFragment
-import ru.itis.second_sem.presentation.utils.CityValidationException
 import ru.itis.second_sem.presentation.utils.Constants
 
 @AndroidEntryPoint
@@ -50,7 +49,7 @@ class TempDetailsFragment : BaseFragment(R.layout.fragment_tempdetails) {
     }
 
     private fun getForecast(city: String) {
-        viewModel.getForecast2(city = city)
+        viewModel.getForecast(city = city)
     }
 
 

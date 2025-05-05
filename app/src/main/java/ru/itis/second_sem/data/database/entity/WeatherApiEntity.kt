@@ -14,7 +14,5 @@ data class WeatherApiEntity(
     @ColumnInfo(name = "current_temp")
     val currentTemp: WeatherDataModel,
     @ColumnInfo(name = "forecast")
-    val forecast: List<ForecastDataModel>,
-    @ColumnInfo(name = "timestamp")
-    val timestamp: Long,
+    val forecast: List<ForecastDataModel>
 )
