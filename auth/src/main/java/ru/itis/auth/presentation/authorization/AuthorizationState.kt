@@ -14,3 +14,9 @@ sealed class AuthorizationEvent{
     data object AuthorizationBtnClicked: AuthorizationEvent()
     data object RegistrationTextBtnClicked: AuthorizationEvent()
 }
+
+sealed interface AuthorizationEffect{
+    data object NavigateToRegister: AuthorizationEffect
+    data object NavigateToCurrentTemp: AuthorizationEffect
+    data class ShowToast(val message: String): AuthorizationEffect
+}

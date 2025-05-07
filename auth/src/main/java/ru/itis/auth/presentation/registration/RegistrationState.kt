@@ -16,3 +16,9 @@ sealed class RegistrationEvent{
     data object RegisterBtnClicked: RegistrationEvent()
     data object LoginBtnClicked: RegistrationEvent()
 }
+
+sealed interface RegistrationEffect{
+    data object NavigateToAuthorization: RegistrationEffect
+    data object NavigateToCurrentTemp: RegistrationEffect
+    data class ShowToast(val message: String): RegistrationEffect
+}

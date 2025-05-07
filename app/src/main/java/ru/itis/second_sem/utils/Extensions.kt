@@ -14,5 +14,6 @@ inline fun <reified T : ViewModel> Fragment.lazyViewModel(noinline create: (Save
         AssistedFactory(this, create)
     }
 
-fun User.toEntity() = UserEntity(userId ?: 0, email, password, username)
-fun UserEntity.toUser() = User(id, email, password, username)
+fun User.toEntity() = UserEntity(userId ?: 0, email = email, password = password, username = username)
+
+fun UserEntity.toUser() = User(id, email = email, password = password, username = username)

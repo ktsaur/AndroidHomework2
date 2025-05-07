@@ -1,5 +1,6 @@
 package ru.itis.auth.presentation.authorization
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -12,31 +13,50 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.TextButton
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 fun AuthorizationRoute(
-    viewModel: AuthorizationViewModel = hiltViewModel()
+    viewModel: AuthorizationViewModel = hiltViewModel(),
+    onNavigate: (AuthorizationEffect) -> Unit
 ) {
+    val context = LocalContext.current
     val state by viewModel.uiSate.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.effectFlow.collect { effect ->
+            when (effect) {
+                is AuthorizationEffect.NavigateToRegister -> onNavigate(effect)
+                is AuthorizationEffect.NavigateToCurrentTemp -> onNavigate(effect)
+                is AuthorizationEffect.ShowToast -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
     AuthorizationContent(state = state, onEvent = viewModel::onEvent)
 }
 
 @Composable
 @Preview
 fun AuthorizationPreview() {
-    AuthorizationContent(state = AuthorizationState(), onEvent = {  })
+    AuthorizationContent(state = AuthorizationState(), onEvent = { })
 }
 
 
@@ -50,7 +70,6 @@ private fun AuthorizationContent(state: AuthorizationState, onEvent: (Authorizat
             Text(
                 text = "Авторизация",
                 modifier = Modifier
-                    .fillMaxWidth(1f)
                     .padding(top = 100.dp),
                 fontSize = 28.sp,
             )
@@ -68,7 +87,9 @@ private fun AuthorizationContent(state: AuthorizationState, onEvent: (Authorizat
                     onEvent(AuthorizationEvent.PasswordUpdate(password = it))
                 },
                 label = { Text(text = "Password") },
-                modifier = Modifier
+                modifier = Modifier,
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
             FilledTonalButton(
                 onClick = {
@@ -87,10 +108,12 @@ private fun AuthorizationContent(state: AuthorizationState, onEvent: (Authorizat
                     .fillMaxWidth(1f)
                     .padding(top = 5.dp)
             ) {
-               Text(text = "Зарегистрироваться",
+                Text(
+                    text = "Зарегистрироваться",
                     fontWeight = FontWeight.Thin,
                     textAlign = TextAlign.Center,
-                    color = Color.Black)
+                    color = Color.Black
+                )
             }
         }
     }

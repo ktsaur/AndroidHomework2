@@ -13,8 +13,8 @@ class RegistrationFragment : Fragment(R.layout.fragment_registration) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewBinding.composeContainerId.setContent {
+        /*viewBinding.composeContainerId.setContent {
             RegistrationRoute()
-        }
+        }*/
     }
 }

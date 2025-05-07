@@ -1,35 +1,56 @@
 package ru.itis.auth.presentation.registration
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.TextButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
 
 @Composable
-@Preview
 fun RegistrationRoute(
-    viewModel: RegistrationViewModel = hiltViewModel()
+    viewModel: RegistrationViewModel = hiltViewModel(),
+    onNavigate: (RegistrationEffect) -> Unit
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.effectFlow.collect { effect ->
+            when (effect) {
+                is RegistrationEffect.NavigateToCurrentTemp -> {
+                    onNavigate(effect)
+                }
+                is RegistrationEffect.NavigateToAuthorization -> {
+                    onNavigate(effect)
+                }
+                is RegistrationEffect.ShowToast -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
     RegistrationContent(state = uiState, onEvent = viewModel::onEvent)
 }
 
@@ -43,9 +64,16 @@ fun RegistrationContent(state: RegistrationState, onEvent: (RegistrationEvent) -
             Text(
                 text = "Регистрация",
                 modifier = Modifier
-                    .fillMaxWidth(1f)
                     .padding(top = 100.dp),
                 fontSize = 28.sp,
+            )
+            OutlinedTextField(
+                value = state.username,
+                onValueChange = {
+                    onEvent(RegistrationEvent.UsernameUpdate(username = it))
+                },
+                label = { Text(text = "Username") },
+                modifier = Modifier.padding(top = 50.dp)
             )
             OutlinedTextField(
                 value = state.email,
@@ -53,7 +81,7 @@ fun RegistrationContent(state: RegistrationState, onEvent: (RegistrationEvent) -
                     onEvent(RegistrationEvent.EmailUpdate(email = it))
                 },
                 label = { Text(text = "Email") },
-                modifier = Modifier.padding(top = 50.dp)
+                modifier = Modifier
             )
             OutlinedTextField(
                 value = state.password,
@@ -61,7 +89,9 @@ fun RegistrationContent(state: RegistrationState, onEvent: (RegistrationEvent) -
                     onEvent(RegistrationEvent.PasswordUpdate(password = it))
                 },
                 label = { Text(text = "Password") },
-                modifier = Modifier
+                modifier = Modifier,
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             )
             FilledTonalButton(
                 onClick = {

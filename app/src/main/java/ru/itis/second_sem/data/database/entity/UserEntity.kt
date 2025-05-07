@@ -2,9 +2,13 @@ package ru.itis.second_sem.data.database.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "user")
+@Entity(
+    tableName = "user",
+    indices = [Index(value = ["email"], unique = true)]
+    )
 data class UserEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "user_id")

@@ -32,4 +32,10 @@ class UserRepositoryImpl @Inject constructor(
             userDao.getUserByEmailAndPassword(email = email, password = password)?.toUser()
         }
     }
+
+    override suspend fun getUserByEmail(email: String): User? {
+        return withContext(ioDispatchers) {
+            userDao.getUserByEmail(email = email)?.toUser()
+        }
+    }
 }

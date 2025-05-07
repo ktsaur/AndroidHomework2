@@ -17,23 +17,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.flow.emptyFlow
+import ru.itis.auth.presentation.authorization.AuthorizationEffect
 import ru.itis.second_sem.R
 import ru.itis.second_sem.presentation.navigation.Screen
 
 @Composable
 fun CurrentTempRoute(
     viewModel: CurrentTempViewModel = hiltViewModel(),
-    navController: NavHostController
+//    navController: NavHostController,
+    onNavigate: (CurrentTempEffect) -> Unit
 ){
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.effectFlow.collect { effect ->
-            when (effect) {
+        viewModel.effectFlow.collect {effect ->
+            /* when (effect) {
                 is CurrentTempEffect.NavigateToTempDetails -> {
                     navController.navigate(Screen.TempDetails.createRoute(effect.city))
                 }
-            }
+            }*/
+            onNavigate(effect)
         }
     }
 

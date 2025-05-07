@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    id("kotlinx-serialization")
 }
 
 android {
@@ -57,6 +58,8 @@ dependencies {
     implementation(libs.viewbindingpropertydelegate.noreflection)
     implementation(libs.foundation.layout)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.serialization)
+    implementation(libs.jbcrypt.v04)
     ksp(libs.hilt.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

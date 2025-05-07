@@ -61,18 +61,20 @@ import java.io.IOException
 @Composable
 fun TempDetailsRoute(
     city: String,
-    navController: NavHostController,
+//    navController: NavHostController,
+    onNavigate: (TempDetailsEffect) -> Unit,
     viewModel: TempDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.effectFlow.collect { effect ->
-            when (effect) {
+            /*when (effect) {
                 is TempDetailsEffect.NavigateBack -> {
                     navController.navigate(Screen.CurrentTemp.route)
                 }
-            }
+            }*/
+            onNavigate(effect)
         }
     }
     LaunchedEffect(key1 = city) {

@@ -29,7 +29,6 @@ class CurrentTempViewModel @Inject constructor(): ViewModel() {
             }
             is CurrentTempEvent.GetWeatherBtnClicked -> {
                 viewModelScope.launch {
-                    Log.d("TempViewModel", "Navigating to details with city: ${_uiState.value.city}")
                     _effectFlow.emit(CurrentTempEffect.NavigateToTempDetails(city = _uiState.value.city))
                 }
             }
