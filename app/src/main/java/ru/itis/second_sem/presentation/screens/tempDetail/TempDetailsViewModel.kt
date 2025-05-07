@@ -1,11 +1,13 @@
-package ru.itis.second_sem.presentation.screens
+package ru.itis.second_sem.presentation.screens.tempDetail
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -15,7 +17,6 @@ import ru.itis.second_sem.data.database.entity.QueryHistoryEntity
 import ru.itis.second_sem.data.database.entity.WeatherApiEntity
 import ru.itis.second_sem.domain.usecase.GetForecastByCityNameUseCase
 import ru.itis.second_sem.domain.usecase.GetWeatherByCityNameUseCase
-import ru.itis.second_sem.presentation.uiState.WeatherUIState
 import ru.itis.second_sem.presentation.utils.CityValidationException
 import ru.itis.second_sem.presentation.utils.toData
 import ru.itis.second_sem.presentation.utils.toDomain
@@ -28,35 +29,48 @@ class TempDetailsViewModel @Inject constructor(
     private val getWeatherByCityNameUseCase: GetWeatherByCityNameUseCase,
     private val database: InceptionDatabase
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(WeatherUIState())
     val uiState = _uiState.asStateFlow()
 
+    private val _effectFlow = MutableSharedFlow<TempDetailsEffect>()
+    val effectFlow = _effectFlow.asSharedFlow()
+
+    fun onEvent(event: TempDetailsEvent) {
+        when(event) {
+            is TempDetailsEvent.OnErrorConfirm -> {
+                viewModelScope.launch {
+                    _effectFlow.emit(TempDetailsEffect.NavigateBack)
+                }
+            }
+        }
+    }
+
     fun getForecast(city: String) {
+        Log.d("TEST_TAG", "Зашел в getForecast")
         if (city.firstOrNull()?.isLowerCase() == true) {
-            _uiState.update { it.copy(error = CityValidationException()) }
+            _uiState.update { it.copy(error = CityValidationException(),  city = city, isLoading = false) }
             return
         }
 
         viewModelScope.launch {
-            _uiState.update { it.copy(error = null) }
+            _uiState.update { it.copy(error = null,  city = city, isLoading = true) }
 
-            val lastTimestep = withContext(Dispatchers.IO) {
+            val lastTimestamp = withContext(Dispatchers.IO) {
                 database.queryHistoryDao.getLastQueryForCity(city = city)
             }
 
             val shouldFetchFromApi = withContext(Dispatchers.IO) {
-                if (lastTimestep == null) {
+                if (lastTimestamp == null) {
                     return@withContext true
                 }
                 val countBetween =
                     database.queryHistoryDao.countQueryBetween(
-                        start = lastTimestep,
+                        start = lastTimestamp,
                         end = System.currentTimeMillis()
                     )
-                Log.d("TIMESTAMPS", "timestamp = $lastTimestep")
+                Log.d("TIMESTAMPS", "timestamp = $lastTimestamp")
                 Log.d("countQueryBetween", "$countBetween")
-                return@withContext (abs(lastTimestep - System.currentTimeMillis()) >= 5 * 60 * 1000 || countBetween >= 3)
+                return@withContext (abs(lastTimestamp - System.currentTimeMillis()) >= 5 * 60 * 1000 || countBetween >= 3)
             }
 
             if (shouldFetchFromApi) {
@@ -119,7 +133,8 @@ class TempDetailsViewModel @Inject constructor(
                 it.copy(
                     forecast = forecast,
                     weather = weather,
-                    error = null
+                    error = null,
+                    isLoading = false
                 )
             }
             withContext(Dispatchers.IO) {
@@ -138,7 +153,7 @@ class TempDetailsViewModel @Inject constructor(
                 )
             )
         }.onFailure { ex ->
-            _uiState.update { it.copy(error = ex) }
+            _uiState.update { it.copy(error = ex, isLoading = false) }
         }
     }
 
@@ -150,7 +165,8 @@ class TempDetailsViewModel @Inject constructor(
                 it.copy(
                     forecast = weatherApiEntity.forecast.toDomain(),
                     weather = weatherApiEntity.currentTemp.toDomain(),
-                    error = null
+                    error = null,
+                    isLoading = false
                 )
             }
             insertQueryHistory(

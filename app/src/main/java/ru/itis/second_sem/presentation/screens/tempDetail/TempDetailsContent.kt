@@ -1,6 +1,7 @@
-package ru.itis.second_sem.presentation.ui
+package ru.itis.second_sem.presentation.screens.tempDetail
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -21,11 +22,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,33 +45,68 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.getColor
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import ru.itis.second_sem.R
 import ru.itis.second_sem.domain.model.ForecastModel
-import ru.itis.second_sem.domain.model.WeatherModel
-import ru.itis.second_sem.presentation.uiState.WeatherUIState
+import ru.itis.second_sem.presentation.navigation.Screen
 import ru.itis.second_sem.presentation.utils.CityValidationException
 import java.io.IOException
 
+@Composable
+fun TempDetailsRoute(
+    city: String,
+    navController: NavHostController,
+    viewModel: TempDetailsViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.effectFlow.collect { effect ->
+            when (effect) {
+                is TempDetailsEffect.NavigateBack -> {
+                    navController.navigate(Screen.CurrentTemp.route)
+                }
+            }
+        }
+    }
+    LaunchedEffect(key1 = city) {
+        viewModel.getForecast(city)
+    }
+
+    TempDetailsContent(state = uiState, onEvent = viewModel::onEvent)
+}
+
 
 @Composable
-fun TempDetailsFragment(city: String, weatherUIState: WeatherUIState?) {
-    var isLoading by remember {
-        mutableStateOf(true)
+fun TempDetailsContent(state: WeatherUIState, onEvent: (TempDetailsEvent) -> Unit) {
+    if (state.error != null) {
+        ErrorAlertDialog(
+            ex = state.error,
+            onConfirmBack = {
+                onEvent(TempDetailsEvent.OnErrorConfirm)
+            },
+            context = LocalContext.current
+        )
+        return
     }
-
-    LaunchedEffect(key1 = true) {
-        delay(3000)
-        isLoading = false
+    if (state.isLoading  || state.forecast.isNullOrEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        return
     }
-
-    val listForecasts = splitForecast(weatherUIState?.forecast ?: emptyList())
+    val listForecasts = splitForecast(state.forecast ?: emptyList())
 
     Scaffold(containerColor = colorResource(id = R.color.blue)) { padding ->
         Column(
@@ -78,17 +116,29 @@ fun TempDetailsFragment(city: String, weatherUIState: WeatherUIState?) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ShimmerTempCard(
-                isLoading = isLoading,
+                isLoading = state.isLoading,
                 contentAfterLoading = {
                     TempMainCard(
-                        city = city,
-                        weatherUIState = weatherUIState
+                        city = state.city,
+                        weatherUIState = state
                     )
                 }
             )
-            ForecastSection(title = stringResource(id = R.string.first_day), forecast = listForecasts[0], isLoading = isLoading)
-            ForecastSection(title = stringResource(id = R.string.second_day), forecast = listForecasts[1], isLoading = isLoading)
-            ForecastSection(title = stringResource(id = R.string.third_day), forecast = listForecasts[2], isLoading = isLoading)
+            ForecastSection(
+                title = stringResource(id = R.string.first_day),
+                forecast = listForecasts[0],
+                isLoading = state.isLoading
+            )
+            ForecastSection(
+                title = stringResource(id = R.string.second_day),
+                forecast = listForecasts[1],
+                isLoading = state.isLoading
+            )
+            ForecastSection(
+                title = stringResource(id = R.string.third_day),
+                forecast = listForecasts[2],
+                isLoading = state.isLoading
+            )
         }
     }
 }
@@ -142,7 +192,7 @@ fun ItemRow(forecastModel: ForecastModel) {
             .size(58.dp)
             .clickable { openDialog = true },
         shape = RoundedCornerShape(10.dp),
-        colors =  CardDefaults.cardColors(
+        colors = CardDefaults.cardColors(
             containerColor = colorResource(id = R.color.blue)
         )
     ) {
@@ -152,15 +202,19 @@ fun ItemRow(forecastModel: ForecastModel) {
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(text = forecastModel.dt, fontSize = 14.sp)
-                Text(text = "${forecastModel.temp.toInt()}°C",fontSize = 18.sp, modifier = Modifier.padding(top = 3.dp))
+                Text(
+                    text = "${forecastModel.temp.toInt()}°C",
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(top = 3.dp)
+                )
             }
         }
     }
 
-    if(openDialog) {
+    if (openDialog) {
         AlertDialog(
             onDismissRequest = { openDialog = false },
-            confirmButton = { 
+            confirmButton = {
                 TextButton(onClick = { openDialog = false }) {
                     Text(text = stringResource(id = R.string.ok))
                 }
@@ -171,7 +225,12 @@ fun ItemRow(forecastModel: ForecastModel) {
                     text = buildString {
                         appendLine(stringResource(R.string.time, forecastModel.dt))
                         appendLine(stringResource(R.string.temp, forecastModel.temp.toInt()))
-                        appendLine(stringResource(R.string.feels_like, forecastModel.feelsLike.toInt()))
+                        appendLine(
+                            stringResource(
+                                R.string.feels_like,
+                                forecastModel.feelsLike.toInt()
+                            )
+                        )
                         appendLine(stringResource(R.string.max_temp, forecastModel.tempMax.toInt()))
                         appendLine(stringResource(R.string.min_temp, forecastModel.tempMin.toInt()))
                         appendLine(stringResource(R.string.description, forecastModel.mainDesc))
@@ -187,13 +246,13 @@ fun ShimmerListItem(
     isLoading: Boolean,
     contentAfterLoading: @Composable () -> Unit
 ) {
-    if(isLoading) {
+    if (isLoading) {
         Card(
             modifier = Modifier
                 .size(58.dp)
                 .shimmerEffect(),
             shape = RoundedCornerShape(10.dp),
-            colors =  CardDefaults.cardColors(
+            colors = CardDefaults.cardColors(
                 containerColor = colorResource(id = R.color.blue)
             )
         ) { }
@@ -207,7 +266,7 @@ fun ShimmerTempCard(
     isLoading: Boolean,
     contentAfterLoading: @Composable () -> Unit
 ) {
-    if(isLoading) {
+    if (isLoading) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -226,7 +285,7 @@ fun ShimmerTempCard(
 }
 
 @Composable
-fun TempMainCard(city: String, weatherUIState: WeatherUIState?) {
+fun TempMainCard(city: String, weatherUIState: WeatherUIState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -254,7 +313,7 @@ fun TempMainCard(city: String, weatherUIState: WeatherUIState?) {
                     )
                 )
                 Text(
-                    text = "${weatherUIState?.weather?.currentTemp?.toInt()}°C",
+                    text = "${weatherUIState.weather.currentTemp.toInt()}°C",
                     style = TextStyle(
                         color = Color.DarkGray,
                         fontSize = 56.sp,
@@ -263,7 +322,7 @@ fun TempMainCard(city: String, weatherUIState: WeatherUIState?) {
                     modifier = Modifier.padding(top = 20.dp)
                 )
                 Text(
-                    text = "${weatherUIState?.weather?.weatherDescription}",
+                    text = weatherUIState.weather.weatherDescription,
                     style = TextStyle(
                         color = Color.DarkGray,
                         fontSize = 20.sp,
@@ -346,6 +405,7 @@ private fun getErrorMessage(ex: Throwable, context: Context): String {
                 else -> context.getString(R.string.error_server, ex.code())
             }
         }
+
         is IOException -> context.getString(R.string.error_connection)
         is CityValidationException -> context.getString(R.string.error_invalid_capitalization)
         else -> context.getString(R.string.error_unknown)
@@ -353,13 +413,15 @@ private fun getErrorMessage(ex: Throwable, context: Context): String {
 }
 
 
+/*
 @Composable
 @Preview
 fun TempDetailsFragmentPreview() {
     TempDetailsFragment(
         city = "Kazan",
-        weatherUIState = WeatherUIState(
+        state = WeatherUIState(
             weather = WeatherModel( currentTemp = 23.0f, weatherDescription = "Clouds" ),
             forecast = emptyList(),
-            error = null))
-}
+            error = null)
+    )
+}*/

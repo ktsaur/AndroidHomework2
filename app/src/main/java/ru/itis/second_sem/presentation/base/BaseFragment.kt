@@ -1,4 +1,4 @@
-package ru.itis.second_sem.presentation.screens
+package ru.itis.second_sem.presentation.base
 
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
