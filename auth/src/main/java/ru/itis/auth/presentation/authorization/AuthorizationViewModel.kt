@@ -1,5 +1,6 @@
 package ru.itis.auth.presentation.authorization
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.mindrot.jbcrypt.BCrypt
+import ru.itis.auth.R
 import ru.itis.auth.domain.repository.UserRepository
 import javax.inject.Inject
 
@@ -24,7 +26,7 @@ class AuthorizationViewModel @Inject constructor(
     private val _effectFlow = MutableSharedFlow<AuthorizationEffect>()
     val effectFlow = _effectFlow.asSharedFlow()
 
-    fun onEvent(event: AuthorizationEvent) {
+    fun onEvent(event: AuthorizationEvent, context: Context) {
         when(event) {
             is AuthorizationEvent.EmailUpdate ->
                 _uiState.update { it.copy(email = event.email) }
@@ -32,7 +34,7 @@ class AuthorizationViewModel @Inject constructor(
                 _uiState.update { it.copy(password = event.password) }
             is AuthorizationEvent.AuthorizationBtnClicked -> {
                 // тут навигация
-                authUser()
+                authUser(context = context)
             }
             is AuthorizationEvent.RegistrationTextBtnClicked -> {
                 // навигация на экран регистрации
@@ -43,7 +45,7 @@ class AuthorizationViewModel @Inject constructor(
         }
     }
 
-    fun authUser() {
+    fun authUser(context: Context) {
         val email = _uiState.value.email
         val password = _uiState.value.password
         viewModelScope.launch {
@@ -53,26 +55,15 @@ class AuthorizationViewModel @Inject constructor(
                 if (BCrypt.checkpw(password, storedHash)) {
                     _uiState.update { it.copy(registerResult = true) }
                     _effectFlow.emit(AuthorizationEffect.NavigateToCurrentTemp)
-                    _effectFlow.emit(AuthorizationEffect.ShowToast(message = "Авторизация прошла успешно"))
+                    _effectFlow.emit(AuthorizationEffect.ShowToast( message = context.getString(R.string.auth_success)))
                 } else {
                     _uiState.update { it.copy(registerResult = false) }
-                    _effectFlow.emit(AuthorizationEffect.ShowToast(message = "Неверный пароль"))
+                    _effectFlow.emit(AuthorizationEffect.ShowToast(message = context.getString(R.string.auth_wrong_password)))
                 }
             } else {
                 _uiState.update { it.copy(registerResult = false) }
-                _effectFlow.emit(AuthorizationEffect.ShowToast(message = "Пользователь не найден"))
+                _effectFlow.emit(AuthorizationEffect.ShowToast(message = context.getString(R.string.auth_user_not_found)))
             }
-            /*val user = userRepository.getUserByEmailAndPassword(email = email, password = password)
-            if (user != null) {
-                _uiState.update { it.copy(registerResult = true) }
-                _effectFlow.emit(AuthorizationEffect.NavigateToCurrentTemp)
-                _effectFlow.emit(AuthorizationEffect.ShowToast(message = "Авторизация прошла успешно"))
-                //входим в аккаунт
-            } else {
-                _uiState.update { it.copy(registerResult = false) }
-                _effectFlow.emit(AuthorizationEffect.ShowToast(message = "Сначала нужно зарегистрироваться"))
-//                Toast.makeText(, ) показываем toast о том что нужно сначала зарегистрироваться
-            }*/
         }
     }
 }

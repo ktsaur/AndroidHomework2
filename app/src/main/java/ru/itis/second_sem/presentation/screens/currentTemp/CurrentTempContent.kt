@@ -25,18 +25,12 @@ import ru.itis.second_sem.presentation.navigation.Screen
 @Composable
 fun CurrentTempRoute(
     viewModel: CurrentTempViewModel = hiltViewModel(),
-//    navController: NavHostController,
     onNavigate: (CurrentTempEffect) -> Unit
 ){
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.effectFlow.collect {effect ->
-            /* when (effect) {
-                is CurrentTempEffect.NavigateToTempDetails -> {
-                    navController.navigate(Screen.TempDetails.createRoute(effect.city))
-                }
-            }*/
             onNavigate(effect)
         }
     }

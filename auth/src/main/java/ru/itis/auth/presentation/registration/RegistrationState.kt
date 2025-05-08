@@ -1,7 +1,5 @@
 package ru.itis.auth.presentation.registration
 
-import ru.itis.auth.utils.Result
-
 data class RegistrationState (
     val username: String = "",
     val email: String = "",

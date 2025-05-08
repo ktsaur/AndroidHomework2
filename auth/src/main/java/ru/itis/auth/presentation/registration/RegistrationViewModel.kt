@@ -1,6 +1,8 @@
 package ru.itis.auth.presentation.registration
 
+import android.content.Context
 import androidx.compose.runtime.collectAsState
+import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +12,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.itis.auth.R
 import ru.itis.auth.domain.model.User
 import ru.itis.auth.domain.repository.UserRepository
 import ru.itis.auth.utils.hashPassword
@@ -26,7 +29,7 @@ class RegistrationViewModel @Inject constructor(
     private val _effectFlow = MutableSharedFlow<RegistrationEffect>()
     val effectFlow = _effectFlow.asSharedFlow()
 
-    fun onEvent(event: RegistrationEvent) {
+    fun onEvent(event: RegistrationEvent, context: Context) {
         when(event) {
             is RegistrationEvent.UsernameUpdate -> {
                 _uiState.update { it.copy(username = event.username) }
@@ -38,10 +41,9 @@ class RegistrationViewModel @Inject constructor(
                 _uiState.update { it.copy(password = event.password) }
             }
             is RegistrationEvent.RegisterBtnClicked -> {
-                register()
+                register(context = context)
             }
             is RegistrationEvent.LoginBtnClicked -> {
-                //навигация на экран авторизации
                 viewModelScope.launch {
                     _effectFlow.emit(RegistrationEffect.NavigateToAuthorization)
                 }
@@ -49,7 +51,7 @@ class RegistrationViewModel @Inject constructor(
         }
     }
 
-    fun register() {
+    fun register(context: Context) {
         val username = _uiState.value.username
         val email = _uiState.value.email
         val password = _uiState.value.password
@@ -59,26 +61,26 @@ class RegistrationViewModel @Inject constructor(
         viewModelScope.launch {
             if (username != "" && email != "" && password != "") {
                 if(!email.contains("@")) {
-                    _effectFlow.emit(RegistrationEffect.ShowToast(message = "Введите корректный email"))
+                    _effectFlow.emit(RegistrationEffect.ShowToast(message = context.getString(R.string.error_invalid_email)))
                     return@launch
                 }
                 if (password.length < 6 || !isValidPassword(password = password)) {
-                    _effectFlow.emit(RegistrationEffect.ShowToast(message = "Пароль должен содержать минимум 6 симолов, буквы и цифры"))
+                    _effectFlow.emit(RegistrationEffect.ShowToast(message = context.getString(R.string.error_invalid_password)))
                     return@launch
                 }
             } else {
-                _effectFlow.emit(RegistrationEffect.ShowToast(message = "Все поля должны быть заполнены!"))
+                _effectFlow.emit(RegistrationEffect.ShowToast(message = context.getString(R.string.error_fill_all_fields)))
                 return@launch
             }
             val user = userRepository.getUserByEmailAndPassword(email = email, password = hashPassword)
             if (user != null) {
                 _uiState.update { it.copy(registerResult = false) }
-                _effectFlow.emit(RegistrationEffect.ShowToast(message = "Такой пользователь уэе зарегистрирован"))
+                _effectFlow.emit(RegistrationEffect.ShowToast(message = context.getString(R.string.error_user_already_registered)))
             } else {
                 val newUser = User(username = username, email = email, password = hashPassword)
                 userRepository.insertUser(newUser)
                 _uiState.update { it.copy(registerResult = true) }
-                _effectFlow.emit(RegistrationEffect.ShowToast(message = "Регистрация прошла успешно"))
+                _effectFlow.emit(RegistrationEffect.ShowToast(message = context.getString(R.string.success_registration)))
                 _effectFlow.tryEmit(RegistrationEffect.NavigateToCurrentTemp)
             }
         }

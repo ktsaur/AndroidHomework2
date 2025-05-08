@@ -21,14 +21,4 @@ class CurrentTempFragment : BaseFragment(R.layout.fragment_current_temp) {
         super.onViewCreated(view, savedInstanceState)
     }
 
-/*    fun navigate() {
-        val tempDetailFragment = TempDetailsFragment().apply {
-            arguments = TempDetailsFragment.bundle(text = city)
-        }
-
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.main_container, tempDetailFragment)
-            .addToBackStack(null).commit()
-    }*/
-
 }

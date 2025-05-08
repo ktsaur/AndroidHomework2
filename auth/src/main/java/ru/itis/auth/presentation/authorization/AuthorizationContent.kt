@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import dagger.hilt.android.lifecycle.HiltViewModel
+import ru.itis.auth.R
 
 @Composable
 fun AuthorizationRoute(
@@ -41,16 +42,13 @@ fun AuthorizationRoute(
     val state by viewModel.uiSate.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.effectFlow.collect { effect ->
-            when (effect) {
-                is AuthorizationEffect.NavigateToRegister -> onNavigate(effect)
-                is AuthorizationEffect.NavigateToCurrentTemp -> onNavigate(effect)
-                is AuthorizationEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
-            }
+            onNavigate(effect)
         }
     }
-    AuthorizationContent(state = state, onEvent = viewModel::onEvent)
+    AuthorizationContent(state = state,
+        onEvent = { event ->
+            viewModel.onEvent(event, context)
+        })
 }
 
 @Composable
@@ -68,7 +66,7 @@ private fun AuthorizationContent(state: AuthorizationState, onEvent: (Authorizat
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Авторизация",
+                text = stringResource(R.string.authorization_title),
                 modifier = Modifier
                     .padding(top = 100.dp),
                 fontSize = 28.sp,
@@ -78,7 +76,7 @@ private fun AuthorizationContent(state: AuthorizationState, onEvent: (Authorizat
                 onValueChange = {
                     onEvent(AuthorizationEvent.EmailUpdate(email = it))
                 },
-                label = { Text(text = "Email") },
+                label = { Text(text = stringResource(R.string.email_label)) },
                 modifier = Modifier.padding(top = 50.dp)
             )
             OutlinedTextField(
@@ -86,7 +84,7 @@ private fun AuthorizationContent(state: AuthorizationState, onEvent: (Authorizat
                 onValueChange = {
                     onEvent(AuthorizationEvent.PasswordUpdate(password = it))
                 },
-                label = { Text(text = "Password") },
+                label = { Text(text = stringResource(R.string.password_label)) },
                 modifier = Modifier,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
@@ -98,7 +96,7 @@ private fun AuthorizationContent(state: AuthorizationState, onEvent: (Authorizat
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.padding(top = 70.dp)
             ) {
-                Text(text = "Войти")
+                Text(text = stringResource(R.string.login_button))
             }
             TextButton(
                 onClick = {
@@ -109,7 +107,7 @@ private fun AuthorizationContent(state: AuthorizationState, onEvent: (Authorizat
                     .padding(top = 5.dp)
             ) {
                 Text(
-                    text = "Зарегистрироваться",
+                    text = stringResource(R.string.register_button),
                     fontWeight = FontWeight.Thin,
                     textAlign = TextAlign.Center,
                     color = Color.Black

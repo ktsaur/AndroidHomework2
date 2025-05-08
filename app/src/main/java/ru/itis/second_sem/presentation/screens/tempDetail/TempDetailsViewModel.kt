@@ -46,7 +46,6 @@ class TempDetailsViewModel @Inject constructor(
     }
 
     fun getForecast(city: String) {
-        Log.d("TEST_TAG", "Зашел в getForecast")
         if (city.firstOrNull()?.isLowerCase() == true) {
             _uiState.update { it.copy(error = CityValidationException(),  city = city, isLoading = false) }
             return
@@ -68,8 +67,6 @@ class TempDetailsViewModel @Inject constructor(
                         start = lastTimestamp,
                         end = System.currentTimeMillis()
                     )
-                Log.d("TIMESTAMPS", "timestamp = $lastTimestamp")
-                Log.d("countQueryBetween", "$countBetween")
                 return@withContext (abs(lastTimestamp - System.currentTimeMillis()) >= 5 * 60 * 1000 || countBetween >= 3)
             }
 
@@ -78,44 +75,6 @@ class TempDetailsViewModel @Inject constructor(
             } else {
                 fetchFromDb(city = city)
             }
-            /*val weatherApiEntity =
-                withContext(Dispatchers.IO) { database.weatherApiDao.getWeatherApi(city = city) }
-            if (weatherApiEntity == null || currentTime - weatherApiEntity.timestamp >= 5 * 60 * 1000) { //+ условие что между текущим и прошлым три и более городов
-                runCatching {
-                    val forecast = getForecastByCityNameUseCase.invoke(city = city)
-                    val weather = getWeatherByCityNameUseCase.invoke(city = city)
-                    Pair(forecast, weather)
-                }.onSuccess { (forecast, weather) ->
-                    _uiState.update {
-                        it.copy(
-                            forecast = forecast,
-                            weather = weather,
-                            error = null
-                        )
-                    }
-                    withContext(Dispatchers.IO) {
-                        val weatherApiEntity =
-                            WeatherApiEntity(
-                                city = city,
-                                currentTemp = weather.toData(),
-                                forecast = forecast.map { it.toData() },
-                                timestamp = System.currentTimeMillis()
-                            )
-                        database.weatherApiDao.saveWeatherApi(weatherApiEntity)
-                    }
-                }.onFailure { ex ->
-                    _uiState.update { it.copy(error = ex) }
-                }
-            } else {
-                _uiState.update {
-                    it.copy(
-                        forecast = weatherApiEntity.forecast.toDomain(),
-                        weather = weatherApiEntity.currentTemp.toDomain(),
-                        error = null
-                    )
-                }
-            }
-        }*/
         }
     }
 

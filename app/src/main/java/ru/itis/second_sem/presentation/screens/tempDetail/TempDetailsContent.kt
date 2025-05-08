@@ -61,7 +61,6 @@ import java.io.IOException
 @Composable
 fun TempDetailsRoute(
     city: String,
-//    navController: NavHostController,
     onNavigate: (TempDetailsEffect) -> Unit,
     viewModel: TempDetailsViewModel = hiltViewModel()
 ) {
@@ -69,11 +68,6 @@ fun TempDetailsRoute(
 
     LaunchedEffect(Unit) {
         viewModel.effectFlow.collect { effect ->
-            /*when (effect) {
-                is TempDetailsEffect.NavigateBack -> {
-                    navController.navigate(Screen.CurrentTemp.route)
-                }
-            }*/
             onNavigate(effect)
         }
     }
@@ -108,7 +102,7 @@ fun TempDetailsContent(state: WeatherUIState, onEvent: (TempDetailsEvent) -> Uni
         }
         return
     }
-    val listForecasts = splitForecast(state.forecast ?: emptyList())
+    val listForecasts = splitForecast(state.forecast)
 
     Scaffold(containerColor = colorResource(id = R.color.blue)) { padding ->
         Column(
@@ -296,7 +290,7 @@ fun TempMainCard(city: String, weatherUIState: WeatherUIState) {
         elevation = CardDefaults.elevatedCardElevation(6.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(1.dp, Color.LightGray),
-    ) { // карточка с прогнозом на сейчас
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()

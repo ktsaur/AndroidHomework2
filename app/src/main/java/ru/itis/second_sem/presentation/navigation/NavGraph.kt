@@ -1,6 +1,5 @@
 package ru.itis.second_sem.presentation.navigation
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -9,7 +8,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import kotlinx.serialization.Serializable
 import ru.itis.auth.presentation.authorization.AuthorizationEffect
 import ru.itis.auth.presentation.authorization.AuthorizationRoute
 import ru.itis.auth.presentation.registration.RegistrationEffect
@@ -19,15 +17,23 @@ import ru.itis.second_sem.presentation.screens.currentTemp.CurrentTempRoute
 import ru.itis.second_sem.presentation.screens.tempDetail.TempDetailsEffect
 import ru.itis.second_sem.presentation.screens.tempDetail.TempDetailsRoute
 
+object Routes {
+    const val AUTHORIZATION = "authorization"
+    const val REGISTRATION = "registration"
+    const val CURRENT_TEMP = "currentTemp"
+    const val TEMP_DETAILS = "tempDetails/{city}"
+}
+
 sealed class Screen(val route: String) {
-    object CurrentTemp : Screen("currentTemp")
-    object TempDetails : Screen("tempDetails/{city}") {
+    object CurrentTemp : Screen(Routes.CURRENT_TEMP)
+    object TempDetails : Screen(Routes.TEMP_DETAILS) {
         fun createRoute(city: String): String = "tempDetails/$city"
     }
-
-    object Registration : Screen("registration")
-    object Authorization : Screen("authorization")
+    object Registration : Screen(Routes.REGISTRATION)
+    object Authorization : Screen(Routes.AUTHORIZATION)
 }
+
+const val ARG_CITY = "city"
 
 @Composable
 fun NavGraph(
@@ -50,12 +56,11 @@ fun NavGraph(
         }
         composable(
             route = Screen.TempDetails.route,
-            arguments = listOf(navArgument("city") {
+            arguments = listOf(navArgument(ARG_CITY) {
                 type = NavType.StringType
             })
         ) { backStackEntry ->
-            val city = backStackEntry.arguments?.getString("city") ?: ""
-            Log.i("CITY", city)
+            val city = backStackEntry.arguments?.getString(ARG_CITY) ?: ""
             TempDetailsRoute(city = city, onNavigate = { effect ->
                 when (effect) {
                     is TempDetailsEffect.NavigateBack -> {
@@ -67,13 +72,11 @@ fun NavGraph(
         composable(route = Screen.Authorization.route) {
             AuthorizationRoute(
                 onNavigate = { effect ->
-                    Log.d("NAV_GRAPH", "Effect received: $effect")
                     when (effect) {
                         is AuthorizationEffect.NavigateToCurrentTemp -> {
                             navHostController.navigate(Screen.CurrentTemp.route)
                         }
                         is AuthorizationEffect.NavigateToRegister -> {
-                            Log.d("NAV_GRAPH", "Navigating to registration")
                             navHostController.navigate(Screen.Registration.route)
                         }
                         is AuthorizationEffect.ShowToast -> Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()

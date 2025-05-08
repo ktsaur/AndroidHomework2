@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import ru.itis.auth.R
 
 
 @Composable
@@ -34,35 +35,30 @@ fun RegistrationRoute(
     viewModel: RegistrationViewModel = hiltViewModel(),
     onNavigate: (RegistrationEffect) -> Unit
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.effectFlow.collect { effect ->
-            when (effect) {
-                is RegistrationEffect.NavigateToCurrentTemp -> {
-                    onNavigate(effect)
-                }
-                is RegistrationEffect.NavigateToAuthorization -> {
-                    onNavigate(effect)
-                }
-                is RegistrationEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
-            }
+            onNavigate(effect)
         }
     }
-    RegistrationContent(state = uiState, onEvent = viewModel::onEvent)
+    RegistrationContent(
+        state = uiState,
+        onEvent = { event ->
+            viewModel.onEvent(event, context)
+        })
 }
 
 @Composable
 fun RegistrationContent(state: RegistrationState, onEvent: (RegistrationEvent) -> Unit) {
+    val context = LocalContext.current
     Scaffold { padding ->
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Регистрация",
+                text = context.getString(R.string.registration_title),
                 modifier = Modifier
                     .padding(top = 100.dp),
                 fontSize = 28.sp,
@@ -72,7 +68,7 @@ fun RegistrationContent(state: RegistrationState, onEvent: (RegistrationEvent) -
                 onValueChange = {
                     onEvent(RegistrationEvent.UsernameUpdate(username = it))
                 },
-                label = { Text(text = "Username") },
+                label = { Text(text = context.getString(R.string.username_label)) },
                 modifier = Modifier.padding(top = 50.dp)
             )
             OutlinedTextField(
@@ -80,7 +76,7 @@ fun RegistrationContent(state: RegistrationState, onEvent: (RegistrationEvent) -
                 onValueChange = {
                     onEvent(RegistrationEvent.EmailUpdate(email = it))
                 },
-                label = { Text(text = "Email") },
+                label = { Text(text = context.getString(R.string.email_label)) },
                 modifier = Modifier
             )
             OutlinedTextField(
@@ -88,7 +84,7 @@ fun RegistrationContent(state: RegistrationState, onEvent: (RegistrationEvent) -
                 onValueChange = {
                     onEvent(RegistrationEvent.PasswordUpdate(password = it))
                 },
-                label = { Text(text = "Password") },
+                label = { Text(text = context.getString(R.string.password_label)) },
                 modifier = Modifier,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -100,7 +96,7 @@ fun RegistrationContent(state: RegistrationState, onEvent: (RegistrationEvent) -
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.padding(top = 70.dp)
             ) {
-                Text(text = "Зарегистрироваться")
+                Text(text = context.getString(R.string.login_button))
             }
             TextButton(
                 onClick = {
@@ -111,7 +107,7 @@ fun RegistrationContent(state: RegistrationState, onEvent: (RegistrationEvent) -
                     .padding(top = 5.dp)
             ) {
                 Text(
-                    text = "Уже есть аккаунт? Войти",
+                    text = context.getString(R.string.already_have_account),
                     fontWeight = FontWeight.Thin,
                     textAlign = TextAlign.Center,
                     color = Color.Black
