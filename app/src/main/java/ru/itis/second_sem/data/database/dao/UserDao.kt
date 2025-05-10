@@ -20,4 +20,7 @@ interface UserDao {
     @Query("SELECT * FROM user WHERE email = :email")
     fun getUserByEmail(email: String): UserEntity?
 
+    @Query("SELECT email FROM user")
+    fun getAllEmails(): List<String>?
+
 }

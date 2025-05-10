@@ -65,6 +65,7 @@ fun TempDetailsRoute(
     viewModel: TempDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.effectFlow.collect { effect ->
@@ -72,7 +73,7 @@ fun TempDetailsRoute(
         }
     }
     LaunchedEffect(key1 = city) {
-        viewModel.getForecast(city)
+        viewModel.getForecast(city = city, context = context)
     }
 
     TempDetailsContent(state = uiState, onEvent = viewModel::onEvent)

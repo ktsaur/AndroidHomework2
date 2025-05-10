@@ -66,6 +66,9 @@ fun NavGraph(
                     is TempDetailsEffect.NavigateBack -> {
                         navHostController.popBackStack()
                     }
+                    is TempDetailsEffect.ShowToast -> {
+                        Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    }
                 }
             })
         }

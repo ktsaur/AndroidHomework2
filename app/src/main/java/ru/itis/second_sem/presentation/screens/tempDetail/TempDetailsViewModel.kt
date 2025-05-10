@@ -1,5 +1,6 @@
 package ru.itis.second_sem.presentation.screens.tempDetail
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ru.itis.auth.R
+import ru.itis.auth.presentation.registration.RegistrationEffect
 import ru.itis.second_sem.data.database.InceptionDatabase
 import ru.itis.second_sem.data.database.entity.QueryHistoryEntity
 import ru.itis.second_sem.data.database.entity.WeatherApiEntity
@@ -45,7 +48,7 @@ class TempDetailsViewModel @Inject constructor(
         }
     }
 
-    fun getForecast(city: String) {
+    fun getForecast(city: String, context: Context) {
         if (city.firstOrNull()?.isLowerCase() == true) {
             _uiState.update { it.copy(error = CityValidationException(),  city = city, isLoading = false) }
             return
@@ -72,8 +75,10 @@ class TempDetailsViewModel @Inject constructor(
 
             if (shouldFetchFromApi) {
                 fetchFromApi(city = city)
+                _effectFlow.emit(TempDetailsEffect.ShowToast(message = context.getString(R.string.fetch_from_api)))
             } else {
                 fetchFromDb(city = city)
+                _effectFlow.emit(TempDetailsEffect.ShowToast(message = context.getString(R.string.fetch_from_db)))
             }
         }
     }

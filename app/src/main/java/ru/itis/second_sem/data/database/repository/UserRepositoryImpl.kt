@@ -38,4 +38,10 @@ class UserRepositoryImpl @Inject constructor(
             userDao.getUserByEmail(email = email)?.toUser()
         }
     }
+
+    override suspend fun getAllEmails(): List<String>? {
+        return withContext(ioDispatchers) {
+            userDao.getAllEmails()
+        }
+    }
 }

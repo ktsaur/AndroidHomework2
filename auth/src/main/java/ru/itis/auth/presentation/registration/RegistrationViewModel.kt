@@ -60,6 +60,11 @@ class RegistrationViewModel @Inject constructor(
 
         viewModelScope.launch {
             if (username != "" && email != "" && password != "") {
+                val listEmails = userRepository.getAllEmails()
+                if (listEmails?.contains(email) == true) {
+                    _effectFlow.emit(RegistrationEffect.ShowToast(message = context.getString(R.string.email_taken)))
+                    return@launch
+                }
                 if(!email.contains("@")) {
                     _effectFlow.emit(RegistrationEffect.ShowToast(message = context.getString(R.string.error_invalid_email)))
                     return@launch
