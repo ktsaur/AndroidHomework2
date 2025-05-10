@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import ru.itis.second_sem.R
 import ru.itis.second_sem.presentation.screens.CurrentTempFragment
+import ru.itis.second_sem.presentation.screens.TempDetailsFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -15,6 +16,5 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.main_container, CurrentTempFragment())
             .commit()
-
     }
 }

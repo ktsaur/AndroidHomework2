@@ -1,34 +1,61 @@
 package ru.itis.second_sem.presentation.screens
 
-import androidx.lifecycle.SavedStateHandle
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import okio.IOException
+import retrofit2.HttpException
+import ru.itis.second_sem.R
+import ru.itis.second_sem.domain.usecase.GetForecastByCityNameUseCase
 import ru.itis.second_sem.domain.usecase.GetWeatherByCityNameUseCase
+import ru.itis.second_sem.presentation.uiState.WeatherUIState
 import javax.inject.Inject
 
 @HiltViewModel
-class TempDetailsViewModel @Inject constructor ( //говорит, что зависимости этого класса будут резолвиться как обычно
-    private val getWeatherByCityNameUsecase: GetWeatherByCityNameUseCase,
-/*    @Assisted("longitude") private val longitude: Float, //долгота. аннотация говорит о том, что эти щависимости мы предоставим сами
-    @Assisted("latitude") private val latitude: Float, //широта*/
-    private val savedStateHandle: SavedStateHandle
+class TempDetailsViewModel @Inject constructor (
+    private val getForecastByCityNameUseCase: GetForecastByCityNameUseCase,
+    private val getWeatherByCityNameUseCase: GetWeatherByCityNameUseCase
 ) : ViewModel() {
 
-    private val longitude: Float = savedStateHandle["longitude"] ?: 0f
-    private val latitude: Float = savedStateHandle["latitude"] ?: 0f
+    private val _uiState = MutableStateFlow(WeatherUIState())
+    val uiState = _uiState.asStateFlow()
 
-    fun start() {}
+    fun getForecast(city: String) {
+        _uiState.update { it.copy(error = null) }
+        viewModelScope.launch {
+            runCatching {
+                val forecast = getForecastByCityNameUseCase.invoke(city = city)
+                val weather = getWeatherByCityNameUseCase.invoke(city = city)
+                Pair(forecast, weather)
+            }.onSuccess { (forecast, weather) ->
+                _uiState.update { it.copy(forecast = forecast, weather = weather, error = null) }
+            }.onFailure { ex ->
+                setError(ex)
+            }
+        }
+    }
 
-  /*  @AssistedFactory
-    interface Factory{
-        fun create(
-            @Assisted("longitude") longitude: Float,
-            @Assisted("latitude") latitude: Float,
-            savedStateHundle: SavedStateHandle
-        ) : TempDetailsViewModel //метод, который получает все параметры, которые должны быть переданы через @Assisted
+    fun setError(ex: Throwable) {
+        _uiState.update { it.copy(error = ex) }
+
+    }
+
+/*    fun getCurrentTemp(city: String) {
+        _uiState.update { it?.copy(error = null) }
+        viewModelScope.launch {
+            runCatching {
+                getWeatherByCityNameUseCase.invoke(city = city)
+            }.onSuccess {  weatherModel ->
+                _uiState.update { it?.copy(weather = weatherModel, error = null) }
+            }.onFailure { ex ->
+                _uiState.update { it?.copy( error = getErrorMessage(ex)) }
+            }
+        }
     }*/
 
 }

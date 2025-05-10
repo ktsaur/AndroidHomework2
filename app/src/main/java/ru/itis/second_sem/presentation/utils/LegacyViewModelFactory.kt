@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import ru.itis.second_sem.domain.usecase.GetWeatherByCityNameUseCase
-import ru.itis.second_sem.presentation.screens.CurrentTempViewModel
 import javax.inject.Inject
 import kotlin.reflect.KClass
 
+/*
 class LegacyViewModelFactory @Inject constructor(
     private val getWeatherByCityNameUsecase: GetWeatherByCityNameUseCase
 ): ViewModelProvider.Factory {
@@ -25,4 +25,4 @@ class LegacyViewModelFactory @Inject constructor(
             }
         }
     }
-}
+}*/

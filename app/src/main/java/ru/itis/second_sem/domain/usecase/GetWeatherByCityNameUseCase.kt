@@ -16,6 +16,5 @@ class GetWeatherByCityNameUseCase @Inject constructor (
         return withContext(ioDispatcher) {
             weatherRepository.getWeatherByCityName(city = city)
         }
-
     }
 }

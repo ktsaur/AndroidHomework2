@@ -15,16 +15,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ru.itis.second_sem.R
 import ru.itis.second_sem.presentation.screens.CurrentTempFragment
 
 @Composable
 fun CurrentTempFragmentCompose(
     value: String,
     onClick: () -> Unit,
-    onValueChange: (String) -> Unit,
-    temperature: String?
+    onValueChange: (String) -> Unit
 ) {
     Scaffold { padding ->
         Column(
@@ -38,20 +39,13 @@ fun CurrentTempFragmentCompose(
                 value = text,
                 onValueChange = { text = it
                                 onValueChange(it)},
-                label = { Text("Enter city") }
+                label = { Text(text = stringResource(id = R.string.enter_city)) }
             )
             OutlinedButton(
                 onClick = { onClick() },
                 modifier = Modifier.padding(top = 50.dp)
             ) {
-                Text("Запросить")
-            }
-
-            if (temperature != null) {
-                Text (
-                    text= "Температура: $temperature°C",
-                    modifier = Modifier.padding(top = 20.dp)
-                )
+                Text(text = stringResource(id = R.string.request))
             }
         }
     }
@@ -60,5 +54,5 @@ fun CurrentTempFragmentCompose(
 @Preview
 @Composable
 fun CurrentTempFragmentPreview() {
-    CurrentTempFragmentCompose(value = "", onClick = {}, onValueChange = {}, temperature = null)
+    CurrentTempFragmentCompose(value = "", onClick = {}, onValueChange = {})
 }

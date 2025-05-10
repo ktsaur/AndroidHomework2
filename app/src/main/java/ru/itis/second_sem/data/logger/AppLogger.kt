@@ -3,8 +3,9 @@ package ru.itis.second_sem.data.logger
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import ru.itis.second_sem.BuildConfig
+import javax.inject.Inject
 
-class AppLogger {
+class AppLogger @Inject constructor() {
 
     fun logBody(builder: OkHttpClient.Builder): OkHttpClient.Builder {
         if(BuildConfig.DEBUG) {

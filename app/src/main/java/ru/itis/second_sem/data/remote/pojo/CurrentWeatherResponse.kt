@@ -5,8 +5,8 @@ import com.google.gson.annotations.SerializedName
 class CurrentWeatherResponse (
     @SerializedName("main")
     val mainData: MainData? = null,
-    @SerializedName("wind")
-    val wind: Wind?= null
+    @SerializedName("weather")
+    val weather: List<WeatherDescription>?= null
 )
 
 class MainData(
@@ -22,7 +22,7 @@ class MainData(
     val pressure:Float?
 )
 
-class Wind(
-    @SerializedName("speed")
-    val speed: Float?
+class WeatherDescription(
+    @SerializedName("description")
+    val description: String?
 )
