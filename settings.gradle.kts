@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "second_sem"
 include(":app")
+include(":auth")
