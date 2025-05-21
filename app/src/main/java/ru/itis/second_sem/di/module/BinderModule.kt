@@ -1,15 +1,15 @@
 package ru.itis.second_sem.di.module
 
-import androidx.lifecycle.ViewModelProvider
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import ru.itis.auth.domain.repository.UserRepository
+import ru.itis.second_sem.data.database.repository.UserRepositoryImpl
 import ru.itis.second_sem.data.repository.ForecastRepositoryImpl
 import ru.itis.second_sem.data.repository.WeatherRepositoryImpl
 import ru.itis.second_sem.domain.repository.ForecastRepository
 import ru.itis.second_sem.domain.repository.WeatherRepository
-import ru.itis.second_sem.presentation.utils.MultibindingFactorySample
 import javax.inject.Singleton
 
 @Module
@@ -23,6 +23,4 @@ interface BinderModule { //модуль, чтобы связывать клас�
     @Singleton
     fun bindForecastRepositoryToImpl(impl: ForecastRepositoryImpl): ForecastRepository
 
-    @Binds
-    fun bindMultibindingFactoryToImpl(impl: MultibindingFactorySample):ViewModelProvider.Factory
 }

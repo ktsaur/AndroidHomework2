@@ -3,24 +3,25 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    id("kotlinx-serialization")
 }
 
 android {
     namespace = "ru.itis.second_sem"
-    compileSdk = 35
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "ru.itis.second_sem"
-        minSdk = 24
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
+        versionCode = rootProject.extra.get("versionCode") as Int
+        versionName = rootProject.extra.get("versionName") as String
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        defaultConfig {
-            buildConfigField("String", "OPEN_WEATHER_API_URL", "\"https://api.openweathermap.org/data/2.5/\"")
-        }
+        buildConfigField("String", "OPEN_WEATHER_API_URL", "\"https://api.openweathermap.org/data/2.5/\"")
+        buildConfigField("int", "DB_VERSION", "1")
+
     }
 
     buildTypes {
@@ -70,12 +71,19 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     implementation(libs.okhttp)
     implementation(libs.http.logging.interceptor)
-    implementation("androidx.compose.compiler:compiler:1.5.0")
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.compiler.compose)
+    implementation(libs.gson)
+    implementation(libs.room)
+    implementation(libs.room.ktx)
     implementation(libs.androidx.fragment)
     implementation(libs.hilt)
-    ksp(libs.hilt.compiler)
     implementation(libs.converter.gson)
+    implementation(libs.navigation.compose)
+    implementation(libs.serialization)
+    implementation(libs.hilt.navigation.compose)
+    implementation(project(":auth"))
+    ksp(libs.hilt.compiler)
+    ksp(libs.room.ksp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
