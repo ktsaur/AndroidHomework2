@@ -14,7 +14,11 @@
     <string name="ok">OK</string>
     <string name="error_title">Error</string>
     <string name="enter_city">Enter city</string>
+    <string name="enter_values">Enter non-negative values</string>
+    <string name="enter_points">Enter the number of points</string>
     <string name="request">Request</string>
+    <string name="nav_to_graph">Graph</string>
+    <string name="draw_graph">Draw graph</string>
     <string name="error_authentication">401 status code. Authentication required to access</string>
     <string name="error_city_not_found">404 status code. City not found.</string>
     <string name="error_server">Server Error: %1$d</string>

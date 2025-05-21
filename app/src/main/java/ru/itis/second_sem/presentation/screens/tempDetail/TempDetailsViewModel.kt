@@ -2,6 +2,7 @@ package ru.itis.second_sem.presentation.screens.tempDetail
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,6 +39,7 @@ class TempDetailsViewModel @Inject constructor(
     private val _effectFlow = MutableSharedFlow<TempDetailsEffect>()
     val effectFlow = _effectFlow.asSharedFlow()
 
+
     fun onEvent(event: TempDetailsEvent) {
         when(event) {
             is TempDetailsEvent.OnErrorConfirm -> {
@@ -45,10 +47,22 @@ class TempDetailsViewModel @Inject constructor(
                     _effectFlow.emit(TempDetailsEffect.NavigateBack)
                 }
             }
+            is TempDetailsEvent.CityUpdate -> { _uiState.update { it.copy(city = event.city, error = null) } }
+            is TempDetailsEvent.GetWeatherBtnClicked -> {
+                getForecast(city = _uiState.value.city)
+                viewModelScope.launch {
+                    _effectFlow.emit(TempDetailsEffect.NavigateToTempDetails(city = _uiState.value.city))
+                }
+            }
+            is TempDetailsEvent.NavigateToGraph -> {
+                viewModelScope.launch {
+                    _effectFlow.emit(TempDetailsEffect.NavigateToGraph)
+                }
+            }
         }
     }
 
-    fun getForecast(city: String, context: Context) {
+    fun getForecast(city: String) {
         if (city.firstOrNull()?.isLowerCase() == true) {
             _uiState.update { it.copy(error = CityValidationException(),  city = city, isLoading = false) }
             return
@@ -75,10 +89,10 @@ class TempDetailsViewModel @Inject constructor(
 
             if (shouldFetchFromApi) {
                 fetchFromApi(city = city)
-                _effectFlow.emit(TempDetailsEffect.ShowToast(message = context.getString(R.string.fetch_from_api)))
+                _effectFlow.emit(TempDetailsEffect.ShowToast(message = R.string.fetch_from_api))
             } else {
                 fetchFromDb(city = city)
-                _effectFlow.emit(TempDetailsEffect.ShowToast(message = context.getString(R.string.fetch_from_db)))
+                _effectFlow.emit(TempDetailsEffect.ShowToast(message = R.string.fetch_from_db))
             }
         }
     }
