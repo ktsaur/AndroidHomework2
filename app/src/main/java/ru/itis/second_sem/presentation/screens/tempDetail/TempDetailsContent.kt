@@ -2,6 +2,7 @@ package ru.itis.second_sem.presentation.screens.tempDetail
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -60,20 +62,25 @@ import java.io.IOException
 
 @Composable
 fun TempDetailsRoute(
-    city: String,
-    onNavigate: (TempDetailsEffect) -> Unit,
-    viewModel: TempDetailsViewModel = hiltViewModel()
+    navController: NavHostController,
+    viewModel: TempDetailsViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.effectFlow.collect { effect ->
-            onNavigate(effect)
+            when (effect) {
+                is TempDetailsEffect.ShowToast -> {
+                    Toast.makeText(context, context.getString(effect.message), Toast.LENGTH_SHORT)
+                        .show()
+                }
+                is TempDetailsEffect.NavigateBack -> {
+                    navController.navigate(Screen.CurrentTemp.route)
+                }
+                else -> {}
+            }
         }
-    }
-    LaunchedEffect(key1 = city) {
-        viewModel.getForecast(city = city, context = context)
     }
 
     TempDetailsContent(state = uiState, onEvent = viewModel::onEvent)
@@ -92,18 +99,12 @@ fun TempDetailsContent(state: WeatherUIState, onEvent: (TempDetailsEvent) -> Uni
         )
         return
     }
-    if (state.isLoading  || state.forecast.isNullOrEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        }
+    if (state.isLoading || state.forecast.isNullOrEmpty()) {
+        ShimmerScreen()
         return
     }
     val listForecasts = splitForecast(state.forecast)
+
 
     Scaffold(containerColor = colorResource(id = R.color.blue)) { padding ->
         Column(
@@ -112,36 +113,94 @@ fun TempDetailsContent(state: WeatherUIState, onEvent: (TempDetailsEvent) -> Uni
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ShimmerTempCard(
-                isLoading = state.isLoading,
-                contentAfterLoading = {
-                    TempMainCard(
-                        city = state.city,
-                        weatherUIState = state
-                    )
-                }
+
+            TempMainCard(
+                city = state.city,
+                weatherUIState = state
             )
             ForecastSection(
                 title = stringResource(id = R.string.first_day),
-                forecast = listForecasts[0],
-                isLoading = state.isLoading
+                forecast = listForecasts[0]
             )
             ForecastSection(
                 title = stringResource(id = R.string.second_day),
-                forecast = listForecasts[1],
-                isLoading = state.isLoading
+                forecast = listForecasts[1]
             )
             ForecastSection(
                 title = stringResource(id = R.string.third_day),
-                forecast = listForecasts[2],
-                isLoading = state.isLoading
+                forecast = listForecasts[2]
             )
         }
     }
 }
 
 @Composable
-fun ForecastSection(title: String, forecast: List<ForecastModel>, isLoading: Boolean) {
+fun ShimmerScreen() {
+    Scaffold(containerColor = colorResource(id = R.color.blue)) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp)
+                    .shimmerEffect(),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.elevatedCardElevation(6.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                border = BorderStroke(1.dp, Color.LightGray)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .background(color = colorResource(id = R.color.white))
+                )
+            }
+            repeat(3) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 36.dp)
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .padding(top = 30.dp)
+                            .shimmerEffect(),
+                        shape = RoundedCornerShape(12.dp),
+                        elevation = CardDefaults.elevatedCardElevation(6.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                    ) {
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(4) {
+                                Card(
+                                    modifier = Modifier
+                                        .size(58.dp)
+                                        .shimmerEffect(),
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = colorResource(id = R.color.blue)
+                                    )
+                                ) {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ForecastSection(title: String, forecast: List<ForecastModel>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -167,13 +226,8 @@ fun ForecastSection(title: String, forecast: List<ForecastModel>, isLoading: Boo
                     .padding(10.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (forecast.isNotEmpty()) {
-                    itemsIndexed(forecast) { _, item ->
-                        ShimmerListItem(
-                            isLoading = isLoading,
-                            contentAfterLoading = { ItemRow(forecastModel = item) }
-                        )
-                    }
+                itemsIndexed(forecast) { _, item ->
+                    ItemRow(forecastModel = item)
                 }
             }
         }
@@ -238,48 +292,6 @@ fun ItemRow(forecastModel: ForecastModel) {
     }
 }
 
-@Composable
-fun ShimmerListItem(
-    isLoading: Boolean,
-    contentAfterLoading: @Composable () -> Unit
-) {
-    if (isLoading) {
-        Card(
-            modifier = Modifier
-                .size(58.dp)
-                .shimmerEffect(),
-            shape = RoundedCornerShape(10.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = colorResource(id = R.color.blue)
-            )
-        ) { }
-    } else {
-        contentAfterLoading()
-    }
-}
-
-@Composable
-fun ShimmerTempCard(
-    isLoading: Boolean,
-    contentAfterLoading: @Composable () -> Unit
-) {
-    if (isLoading) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.dp)
-                .shimmerEffect(),
-            shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.elevatedCardElevation(6.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            border = BorderStroke(1.dp, Color.LightGray),
-        ) {
-            Box(modifier = Modifier.background(color = colorResource(id = R.color.white)))
-        }
-    } else {
-        contentAfterLoading()
-    }
-}
 
 @Composable
 fun TempMainCard(city: String, weatherUIState: WeatherUIState) {
@@ -384,7 +396,7 @@ fun ErrorAlertDialog(ex: Throwable, context: Context, onConfirmBack: () -> Unit)
 
 private fun splitForecast(forecast: List<ForecastModel>): List<List<ForecastModel>> {
     val indicesOfMidnight = forecast.mapIndexedNotNull { index, forecastModel ->
-        if (forecastModel.dt == "00:00") index else null
+        if (forecastModel.dt == "01:00") index else null
     }
     return listOf(
         forecast.take(indicesOfMidnight[0]),
@@ -408,17 +420,3 @@ private fun getErrorMessage(ex: Throwable, context: Context): String {
         else -> context.getString(R.string.error_unknown)
     }
 }
-
-
-/*
-@Composable
-@Preview
-fun TempDetailsFragmentPreview() {
-    TempDetailsFragment(
-        city = "Kazan",
-        state = WeatherUIState(
-            weather = WeatherModel( currentTemp = 23.0f, weatherDescription = "Clouds" ),
-            forecast = emptyList(),
-            error = null)
-    )
-}*/

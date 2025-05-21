@@ -1,7 +1,8 @@
-package ru.itis.second_sem.presentation.screens.currentTemp
+package ru.itis.second_sem.presentation.screens.tempDetail
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.OutlinedButton
@@ -11,27 +12,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.flow.emptyFlow
-import ru.itis.auth.presentation.authorization.AuthorizationEffect
 import ru.itis.second_sem.R
 import ru.itis.second_sem.presentation.navigation.Screen
 
 @Composable
 fun CurrentTempRoute(
-    viewModel: CurrentTempViewModel = hiltViewModel(),
-    onNavigate: (CurrentTempEffect) -> Unit
+    navController: NavHostController,
+    viewModel: TempDetailsViewModel
 ){
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.effectFlow.collect {effect ->
-            onNavigate(effect)
+            when(effect) {
+                is TempDetailsEffect.NavigateToTempDetails -> {
+                    navController.navigate(Screen.TempDetails.route)
+                }
+                else -> {}
+            }
         }
     }
 
@@ -41,7 +49,7 @@ fun CurrentTempRoute(
 
 @Composable
 fun CurrentTempFragmentContent(
-    state: CurrentTempUiState, onEvent: (CurrentTempEvent) -> Unit
+    state: WeatherUIState, onEvent: (TempDetailsEvent) -> Unit
 ) {
     Scaffold { padding ->
         Column(
@@ -49,17 +57,28 @@ fun CurrentTempFragmentContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 100.dp)
+                .padding(horizontal = 16.dp)
         ) {
             TextField(
                 value = state.city,
                 onValueChange = {
-                    onEvent(CurrentTempEvent.CityUpdate(city = it))
+                    onEvent(TempDetailsEvent.CityUpdate(city = it))
                 },
-                label = { Text(text = stringResource(id = R.string.enter_city)) }
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                text = stringResource(id = R.string.enter_city),
+                style = TextStyle(
+                    color = Color.Gray,
+                    fontSize = 13.sp
+                ),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 5.dp)
             )
             OutlinedButton(
                 onClick = {
-                    onEvent(CurrentTempEvent.GetWeatherBtnClicked)
+                    onEvent(TempDetailsEvent.GetWeatherBtnClicked)
                 },
                 modifier = Modifier.padding(top = 50.dp)
             ) {
