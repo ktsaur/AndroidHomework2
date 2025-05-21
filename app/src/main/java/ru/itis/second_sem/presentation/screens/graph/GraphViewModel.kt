@@ -5,6 +5,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import ru.itis.second_sem.R
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,7 +21,13 @@ class GraphViewModel @Inject constructor() : ViewModel() {
                 val numberOfPoints = _uiState.value.numberOfPoints.toIntOrNull()
 
                 if (values == null || numberOfPoints == null || values.size != numberOfPoints) {
-                    _uiState.update { it.copy(errorMessage = "Некорректно введены данные", isDraw = false) }
+                    _uiState.update {
+                        it.copy(
+                            errorMessage =
+                            if (values?.size != numberOfPoints) R.string.error_value_count_mismatch else R.string.error_invalid_input,
+                            isDraw = false
+                        )
+                    }
                 }
 
                 if (values != null && numberOfPoints != null) {
@@ -29,17 +36,29 @@ class GraphViewModel @Inject constructor() : ViewModel() {
             }
 
             is GraphEvent.UpdateValues -> {
-                _uiState.update { it.copy(values = event.values, isDraw = false, errorMessage = null) }
+                _uiState.update {
+                    it.copy(
+                        values = event.values,
+                        isDraw = false,
+                        errorMessage = null
+                    )
+                }
             }
 
             is GraphEvent.UpdateNumberOfPoints -> {
-                _uiState.update { it.copy(numberOfPoints = event.number, isDraw = false, errorMessage = null) }
+                _uiState.update {
+                    it.copy(
+                        numberOfPoints = event.number,
+                        isDraw = false,
+                        errorMessage = null
+                    )
+                }
             }
         }
     }
 
     private fun parseValues(input: String): List<Float>? {
-        if (input.isEmpty()) return null
+        if (input.isEmpty() || !input.contains(",")) return null
         val parsedValues = input.split(",").mapNotNull { value ->
             val trimmedValue = value.trim()
             if (trimmedValue.isNotEmpty()) {

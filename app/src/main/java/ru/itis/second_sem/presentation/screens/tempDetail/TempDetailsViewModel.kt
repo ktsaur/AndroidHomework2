@@ -54,11 +54,6 @@ class TempDetailsViewModel @Inject constructor(
                     _effectFlow.emit(TempDetailsEffect.NavigateToTempDetails(city = _uiState.value.city))
                 }
             }
-            is TempDetailsEvent.NavigateToGraph -> {
-                viewModelScope.launch {
-                    _effectFlow.emit(TempDetailsEffect.NavigateToGraph)
-                }
-            }
         }
     }
 

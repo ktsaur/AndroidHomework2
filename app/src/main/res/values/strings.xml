@@ -14,7 +14,7 @@
     <string name="ok">OK</string>
     <string name="error_title">Error</string>
     <string name="enter_city">Enter city</string>
-    <string name="enter_values">Enter non-negative values</string>
+    <string name="enter_number_points">Введите количество точек</string>
     <string name="enter_points">Enter the number of points</string>
     <string name="request">Request</string>
     <string name="nav_to_graph">Graph</string>
@@ -26,6 +26,10 @@
     <string name="error_unknown">Unknown error. Please try again later.</string>
     <string name="error_empty_city">Please enter the name of the city.</string>
     <string name="error_invalid_capitalization">The city name must begin with a capital letter.</string>
+    <string name="error_value_count_mismatch">Число значений, введенное в верхнем поле, должно совпадать с количеством точек, введенных в нижнем поле</string>
+    <string name="error_invalid_input">Некорректно введены данные</string>
+    <string name="enter_values">Введите значения через запятую. Количество значений должно совпадать с числом, введенном в верхнем текстовом поле</string>
 
 
 </resources>
+

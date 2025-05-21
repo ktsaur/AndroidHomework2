@@ -2,6 +2,7 @@ package ru.itis.second_sem.presentation.screens.tempDetail
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.OutlinedButton
@@ -14,8 +15,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import ru.itis.second_sem.R
@@ -33,9 +37,6 @@ fun CurrentTempRoute(
             when(effect) {
                 is TempDetailsEffect.NavigateToTempDetails -> {
                     navController.navigate(Screen.TempDetails.route)
-                }
-                is TempDetailsEffect.NavigateToGraph -> {
-                    navController.navigate(Screen.Graph.route)
                 }
                 else -> {}
             }
@@ -56,13 +57,24 @@ fun CurrentTempFragmentContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 100.dp)
+                .padding(horizontal = 16.dp)
         ) {
             TextField(
                 value = state.city,
                 onValueChange = {
                     onEvent(TempDetailsEvent.CityUpdate(city = it))
                 },
-                label = { Text(text = stringResource(id = R.string.enter_city)) }
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                text = stringResource(id = R.string.enter_city),
+                style = TextStyle(
+                    color = Color.Gray,
+                    fontSize = 13.sp
+                ),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 5.dp)
             )
             OutlinedButton(
                 onClick = {
@@ -71,14 +83,6 @@ fun CurrentTempFragmentContent(
                 modifier = Modifier.padding(top = 50.dp)
             ) {
                 Text(text = stringResource(id = R.string.request))
-            }
-            OutlinedButton(
-                onClick = {
-                    onEvent(TempDetailsEvent.NavigateToGraph)
-                },
-                modifier = Modifier.padding(top = 50.dp)
-            ) {
-                Text(text = stringResource(id = R.string.nav_to_graph))
             }
         }
     }

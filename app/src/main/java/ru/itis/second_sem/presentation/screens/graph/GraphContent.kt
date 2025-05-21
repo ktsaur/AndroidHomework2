@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,7 +33,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import ru.itis.second_sem.R
-import ru.itis.second_sem.domain.model.GraphModel
 
 @Composable
 fun GraphRoute(
@@ -59,14 +59,32 @@ fun GraphContent(state: GraphUIState, onEvent: (GraphEvent) -> Unit) {
                 onValueChange = {
                     onEvent(GraphEvent.UpdateNumberOfPoints(it))
                 },
-                modifier = Modifier.padding(top = 50.dp),
-                label = { Text(text = stringResource(id = R.string.enter_points)) }
+                modifier = Modifier.padding(top = 50.dp).fillMaxWidth()
+            )
+            Text(
+                text = stringResource(id = R.string.enter_number_points),
+                style = TextStyle(
+                    color = Color.Gray,
+                    fontSize = 13.sp
+                ),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 5.dp)
             )
             TextField(
                 value = state.values,
                 onValueChange = { onEvent(GraphEvent.UpdateValues(it)) },
-                modifier = Modifier.padding(top = 50.dp),
-                label = { Text(text = stringResource(id = R.string.enter_values)) }
+                modifier = Modifier.padding(top = 50.dp).fillMaxWidth()
+            )
+            Text(
+                text = stringResource(id = R.string.enter_values),
+                style = TextStyle(
+                    color = Color.Gray,
+                    fontSize = 13.sp
+                ),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 5.dp)
             )
             OutlinedButton(
                 onClick = { onEvent(GraphEvent.DrawGraph) },
@@ -75,9 +93,9 @@ fun GraphContent(state: GraphUIState, onEvent: (GraphEvent) -> Unit) {
                 Text(text = stringResource(id = R.string.draw_graph))
             }
 
-            state.errorMessage?.let {
+            state.errorMessage?.let { id ->
                 Text(
-                    text = it,
+                    text = stringResource(id = id),
                     color = Color.Red,
                     fontSize = 16.sp,
                     modifier = Modifier.padding(top = 8.dp)
@@ -93,7 +111,6 @@ fun GraphContent(state: GraphUIState, onEvent: (GraphEvent) -> Unit) {
     }
 }
 
-@Preview
 @Composable
 fun DrawGraph(numberOfPoints: Int, values: List<Float>) {
     Canvas(
@@ -101,6 +118,7 @@ fun DrawGraph(numberOfPoints: Int, values: List<Float>) {
             .fillMaxWidth()
             .height(200.dp)
             .padding(horizontal = 16.dp)
+            .padding(top = 10.dp)
     ) {
         val width = size.width
         val height = size.height
