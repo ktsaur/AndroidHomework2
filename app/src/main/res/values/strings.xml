@@ -29,7 +29,8 @@
     <string name="error_value_count_mismatch">Число значений, введенное в верхнем поле, должно совпадать с количеством точек, введенных в нижнем поле</string>
     <string name="error_invalid_input">Некорректно введены данные</string>
     <string name="enter_values">Введите значения через запятую. Количество значений должно совпадать с числом, введенном в верхнем текстовом поле</string>
-
+    <string name="default_notification_channel_id">default channel</string>
+    <string name="msg_token_fmt">msg_token_fmt</string>
 
 </resources>
 

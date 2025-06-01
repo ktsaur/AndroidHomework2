@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
     id("kotlinx-serialization")
 }
 
@@ -81,6 +82,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.serialization)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.firebase.messaging)
     implementation(project(":auth"))
     ksp(libs.hilt.compiler)
     ksp(libs.room.ksp)
