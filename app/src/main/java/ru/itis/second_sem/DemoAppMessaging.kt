@@ -1,12 +1,8 @@
 package ru.itis.second_sem
 
-import android.app.NotificationManager
-import android.content.Context
-import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
 import ru.itis.second_sem.utils.NotificationHandler
 import javax.inject.Inject
 

@@ -12,6 +12,7 @@ import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 import dagger.multibindings.Multibinds
 import ru.itis.auth.utils.AuthManager
+import ru.itis.second_sem.presentation.navigation.NavigationManager
 import ru.itis.second_sem.utils.ActivityLifecycleHandler
 import ru.itis.second_sem.utils.NotificationHandler
 
@@ -23,10 +24,15 @@ class PresentationModule {
     fun provideNotificationHandler(
         @ApplicationContext context: Context,
         authManager: AuthManager,
-        activityLifecycleHandler: ActivityLifecycleHandler
-    ): NotificationHandler = NotificationHandler(context, authManager, activityLifecycleHandler)
+        activityLifecycleHandler: ActivityLifecycleHandler,
+        navigationManager: NavigationManager
+    ): NotificationHandler =
+        NotificationHandler(context, authManager, activityLifecycleHandler, navigationManager)
 
     @Provides
     fun provideAuthManager(@ApplicationContext context: Context): AuthManager = AuthManager(context)
+
+    @Provides
+    fun provideNavigationManager(): NavigationManager = NavigationManager()
 
 }

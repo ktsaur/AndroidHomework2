@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import ru.itis.auth.utils.AuthManager
 import ru.itis.second_sem.R
 import ru.itis.second_sem.presentation.base.MainActivity
+import ru.itis.second_sem.presentation.navigation.NavigationManager
 import ru.itis.second_sem.presentation.navigation.Screen
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,7 +28,8 @@ import javax.inject.Singleton
 class NotificationHandler @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
     private val authManager: AuthManager,
-    private val activityLifecycleHandler: ActivityLifecycleHandler
+    private val activityLifecycleHandler: ActivityLifecycleHandler,
+    private val navigationManager: NavigationManager
 ) {
     companion object {
         private const val CHANNEL_ID = "notification_channel"
@@ -40,9 +42,9 @@ class NotificationHandler @Inject constructor(
     )
 
     fun createNotification(context: Context, id: Int, message: RemoteMessage) {
-        val title = message.data["title"] ?: "Default Title"
-        val text = message.data["text"] ?: "Default Message"
-        val category = message.data["category"] ?: "Default category"
+        val title = message.data["title"] ?: applicationContext.getString(R.string.default_title)
+        val text = message.data["text"] ?: applicationContext.getString(R.string.default_message)
+        val category = message.data["category"] ?: applicationContext.getString(R.string.default_category)
         /* val title = message.notification?.title ?: ""
          val text = message.notification?.body ?: ""
          val category = message.notification*/
@@ -50,7 +52,7 @@ class NotificationHandler @Inject constructor(
         when (category.lowercase()) {
             "first" -> createAlertNotification(context, id, title, text)
             "second" -> createPrefsNotification(title, text)
-            "third" -> handleFeatureCategory(context)
+            "third" -> handleFeatureCategory()
             else -> createAlertNotification(context, id, title, text)
         }
     }
@@ -98,12 +100,12 @@ class NotificationHandler @Inject constructor(
         return activityLifecycleHandler.isAppInForeground()
     }
 
-    private fun handleFeatureCategory(context: Context) {
+    private fun handleFeatureCategory() {
         CoroutineScope(Dispatchers.Main).launch {
             if (!isAuthorized()) {
                 Toast.makeText(
                     applicationContext,
-                    "Доступ к этой фиче закрыт. Пожалуйста, авторизуйтесь",
+                    applicationContext.getString(R.string.access_to_feature_closed),
                     Toast.LENGTH_SHORT
                 ).show()
                 return@launch
@@ -111,25 +113,15 @@ class NotificationHandler @Inject constructor(
             if (!isScreenActive()) {
                 return@launch
             }
-            val navController = MainActivity.navController
-            if (navController != null) {
-                try {
-                    val currentRoute = navController.currentBackStackEntry?.destination?.route
-                    if (currentRoute == Screen.Graph.route) {
-                        Toast.makeText(
-                            applicationContext,
-                            "Вы уже на экране этой фичи",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return@launch
-                    }
-                    navController.navigate(Screen.Graph.route)
-                } catch (e: Exception) {
-                    Log.e("NotificationHandler", "ошибка навигации: ${e.message}", e)
-                }
-            } else {
-                Log.e("NotificationHandler", "navController == null")
+            if (navigationManager.getCurrentRoute() == Screen.Graph.route) {
+                Toast.makeText(
+                    applicationContext,
+                    applicationContext.getString(R.string.you_are_on_the_feature_screen),
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@launch
             }
+            navigationManager.navigate(Screen.Graph.route)
         }
     }
 }

@@ -31,6 +31,17 @@
     <string name="enter_values">Введите значения через запятую. Количество значений должно совпадать с числом, введенном в верхнем текстовом поле</string>
     <string name="default_notification_channel_id">default channel</string>
     <string name="msg_token_fmt">msg_token_fmt</string>
+    <string name="feature_not_available">Фича не доступна</string>
+    <string name="Values_not_fetched"> Values not fetched</string>
+    <string name="remote_config_received">Remote config успешно получен</string>
+    <string name="remote_config_flag">test_feature_flag</string>
+    <string name="default_title">Default title</string>
+    <string name="default_message">Default message</string>
+    <string name="default_category">Default category</string>
+    <string name="access_to_feature_closed">Доступ к фиче закрыт, сначала авторизируйтесь</string>
+    <string name="you_are_on_the_feature_screen">Вы уже на экране этой фичи</string>
+
+
 
 </resources>
 
