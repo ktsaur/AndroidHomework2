@@ -2,10 +2,16 @@ package ru.itis.second_sem.presentation.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -90,4 +96,14 @@ fun convertTimestampToTime(dt: Long?): String {
     val formatter = DateTimeFormatter.ofPattern("HH:mm")
         .withZone(ZoneId.systemDefault())
     return formatter.format(instant)
+}
+
+@Composable
+inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(
+    navController: NavController, navGraphRoute: String, navBackStackEntry: NavBackStackEntry
+): T {
+    val parentEntry  = remember(navBackStackEntry){
+        navController.getBackStackEntry(navGraphRoute)
+    }
+    return hiltViewModel(parentEntry)
 }
