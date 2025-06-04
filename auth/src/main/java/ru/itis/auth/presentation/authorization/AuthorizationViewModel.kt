@@ -13,11 +13,13 @@ import kotlinx.coroutines.launch
 import org.mindrot.jbcrypt.BCrypt
 import ru.itis.auth.R
 import ru.itis.auth.domain.repository.UserRepository
+import ru.itis.auth.utils.AuthManager
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthorizationViewModel @Inject constructor(
-    val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val authManager: AuthManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(value = AuthorizationState())
@@ -33,11 +35,9 @@ class AuthorizationViewModel @Inject constructor(
             is AuthorizationEvent.PasswordUpdate ->
                 _uiState.update { it.copy(password = event.password) }
             is AuthorizationEvent.AuthorizationBtnClicked -> {
-                // тут навигация
                 authUser(context = context)
             }
             is AuthorizationEvent.RegistrationTextBtnClicked -> {
-                // навигация на экран регистрации
                 viewModelScope.launch {
                     _effectFlow.emit(AuthorizationEffect.NavigateToRegister)
                 }
@@ -54,6 +54,7 @@ class AuthorizationViewModel @Inject constructor(
                 val storedHash = user.password
                 if (BCrypt.checkpw(password, storedHash)) {
                     _uiState.update { it.copy(registerResult = true) }
+                    user.userId?.let { authManager.saveUserId(it) }
                     _effectFlow.emit(AuthorizationEffect.NavigateToCurrentTemp)
                     _effectFlow.emit(AuthorizationEffect.ShowToast( message = context.getString(R.string.auth_success)))
                 } else {

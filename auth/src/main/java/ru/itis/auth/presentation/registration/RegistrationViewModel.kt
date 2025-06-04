@@ -15,12 +15,14 @@ import kotlinx.coroutines.launch
 import ru.itis.auth.R
 import ru.itis.auth.domain.model.User
 import ru.itis.auth.domain.repository.UserRepository
+import ru.itis.auth.utils.AuthManager
 import ru.itis.auth.utils.hashPassword
 import javax.inject.Inject
 
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
-    val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val authManager: AuthManager
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(RegistrationState())
@@ -83,7 +85,8 @@ class RegistrationViewModel @Inject constructor(
                 _effectFlow.emit(RegistrationEffect.ShowToast(message = context.getString(R.string.error_user_already_registered)))
             } else {
                 val newUser = User(username = username, email = email, password = hashPassword)
-                userRepository.insertUser(newUser)
+                val userId = userRepository.insertUser(newUser)
+                authManager.saveUserId(userId)
                 _uiState.update { it.copy(registerResult = true) }
                 _effectFlow.emit(RegistrationEffect.ShowToast(message = context.getString(R.string.success_registration)))
                 _effectFlow.tryEmit(RegistrationEffect.NavigateToCurrentTemp)

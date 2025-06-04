@@ -9,6 +9,7 @@ gson = "2.10.1"
 kotlin = "1.9.22"
 coreKtx = "1.15.0"
 junit = "4.13.2"
+google-sevices = "4.4.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
@@ -36,6 +37,15 @@ navigation-compose = "2.8.9"
 compiler-compose-version = "1.5.0"
 serialization-version = "1.6.0"
 material3AndroidVersion = "1.3.2"
+
+# Firebase
+firebase-messaging = "24.1.1"
+firebase-crashlytics = "19.4.3"
+firebase-analytics = "22.4.0"
+firebase-remote-config = "22.1.2"
+crashlytics-plugin = "3.0.3"
+play-services-cloud-messaging = "17.3.0"
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -74,6 +84,11 @@ serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization
 material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3AndroidVersion" }
 foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "compose-base-version" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.2.0" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebase-messaging" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebase-crashlytics" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebase-analytics" }
+firebase-remote-config = { group = "com.google.firebase", name = "firebase-config", version.ref = "firebase-remote-config" }
+play-services-cloud-messaging = { group = "com.google.android.gms", name = "play-services-cloud-messaging", version.ref = "play-services-cloud-messaging" }
 
 [bundles]
 compose-base = ["compose-foundation", "compose_ui", "compose_material"]
@@ -83,6 +98,8 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-serialization" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+google-services = { id = "com.google.gms.google-services", version.ref = "google-sevices" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt-version" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+crashlytics-plugin = {id ="com.google.firebase.crashlytics", version.ref = "crashlytics-plugin"}
 

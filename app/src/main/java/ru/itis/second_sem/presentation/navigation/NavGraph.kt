@@ -37,13 +37,14 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun NavGraph(
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    startDestination: String
 ) {
     val context = LocalContext.current
 
     NavHost(
         navController = navHostController,
-        startDestination = Routes.REGISTRATION
+        startDestination = startDestination
     ) {
         navigation(
             route = Routes.bottom_graph,

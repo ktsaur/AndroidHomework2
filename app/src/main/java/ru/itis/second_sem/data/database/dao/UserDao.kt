@@ -9,7 +9,7 @@ import ru.itis.second_sem.data.database.entity.UserEntity
 @Dao
 interface UserDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertUser(user: UserEntity)
+    fun insertUser(user: UserEntity): Long
 
     @Query("SELECT * FROM user WHERE user_id = :id")
     fun getUserById(id: Int): UserEntity?
