@@ -52,7 +52,7 @@ class NotificationHandler @Inject constructor(
         when (category.lowercase()) {
             "first" -> createAlertNotification(context, id, title, text)
             "second" -> createPrefsNotification(title, text)
-            "third" -> handleFeatureCategory()
+            "third" ->  handleFeatureCategory()
             else -> createAlertNotification(context, id, title, text)
         }
     }
@@ -101,6 +101,9 @@ class NotificationHandler @Inject constructor(
     }
 
     private fun handleFeatureCategory() {
+        if (!isScreenActive()) {
+            return
+        }
         CoroutineScope(Dispatchers.Main).launch {
             if (!isAuthorized()) {
                 Toast.makeText(
@@ -110,18 +113,20 @@ class NotificationHandler @Inject constructor(
                 ).show()
                 return@launch
             }
-            if (!isScreenActive()) {
-                return@launch
-            }
-            if (navigationManager.getCurrentRoute() == Screen.Graph.route) {
+
+            val currentRoute = navigationManager.getCurrentRoute()
+            Log.d("FCM-DEBUG", "Текущий route: $currentRoute")
+            
+            if (currentRoute == Screen.Graph.route) {
+                Log.d("FCM-DEBUG", "Пользователь уже на экране фичи")
                 Toast.makeText(
                     applicationContext,
                     applicationContext.getString(R.string.you_are_on_the_feature_screen),
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_LONG
                 ).show()
-                return@launch
+            } else {
+                navigationManager.navigate(Screen.Graph.route)
             }
-            navigationManager.navigate(Screen.Graph.route)
         }
     }
 }

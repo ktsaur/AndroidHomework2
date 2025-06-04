@@ -3,7 +3,9 @@ package ru.itis.second_sem.presentation.navigation
 import android.util.Log
 import androidx.navigation.NavController
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class NavigationManager @Inject constructor() {
     private var navController: NavController? = null
 
@@ -16,11 +18,16 @@ class NavigationManager @Inject constructor() {
     }
 
     fun getCurrentRoute(): String? {
-        Log.i("NavigationManager", "current route = ${navController?.currentBackStackEntry?.destination?.route}")
-        return navController?.currentBackStackEntry?.destination?.route
+        val route = navController?.currentBackStackEntry?.destination?.route
+        Log.d("NavigationManager", "getCurrentRoute: текущий route = $route")
+        return route
     }
 
     fun navigate(route: String) {
+        if (navController == null) {
+            return
+        }
+        
         navController?.let { controller ->
             try {
                 val currentRoute = getCurrentRoute()
@@ -29,8 +36,8 @@ class NavigationManager @Inject constructor() {
                 }
                 controller.navigate(route)
             } catch (e: Exception) {
-                Log.i("NavigationManager", "ошибка навигации")
+                Log.e("NavigationManager", "navigate: ошибка при навигации", e)
             }
-        } ?: Log.i("NavigationManager", "нав контроллер равен нулю")
+        }
     }
 }

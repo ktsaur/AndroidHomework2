@@ -15,6 +15,7 @@ import ru.itis.auth.utils.AuthManager
 import ru.itis.second_sem.presentation.navigation.NavigationManager
 import ru.itis.second_sem.utils.ActivityLifecycleHandler
 import ru.itis.second_sem.utils.NotificationHandler
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -33,6 +34,7 @@ class PresentationModule {
     fun provideAuthManager(@ApplicationContext context: Context): AuthManager = AuthManager(context)
 
     @Provides
+    @Singleton
     fun provideNavigationManager(): NavigationManager = NavigationManager()
 
 }
