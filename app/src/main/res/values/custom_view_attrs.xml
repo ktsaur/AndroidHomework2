@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomView">
+        <attr name="base_color" format="color" />
+        <attr name="states" format="enum">
+            <enum name="first" value="0"/>
+            <enum name="second" value="1"/>
+        </attr>
+    </declare-styleable>
+</resources>

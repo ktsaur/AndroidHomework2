@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
 
         val userId = authManager.getUserId()
         val initialRoute = if (userId != -1) {
-            Routes.bottom_graph
+            Routes.BOTTOM_GRAPH
         } else {
             Routes.REGISTRATION
         }
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         val currentRoute = navBackStackEntry?.destination?.route
 
         val showBottomNavigation = currentRoute in listOf(
-            Screen.Graph.route, Screen.CurrentTemp.route
+            Screen.Graph.route, Screen.CurrentTemp.route, Screen.CustomView.route
         )
 
         Scaffold(

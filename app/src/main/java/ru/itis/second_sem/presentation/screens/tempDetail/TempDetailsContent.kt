@@ -106,7 +106,6 @@ fun TempDetailsContent(state: WeatherUIState, onEvent: (TempDetailsEvent) -> Uni
     }
     val listForecasts = splitForecast(state.forecast)
 
-
     Scaffold(containerColor = colorResource(id = R.color.blue)) { padding ->
         Column(
             modifier = Modifier
