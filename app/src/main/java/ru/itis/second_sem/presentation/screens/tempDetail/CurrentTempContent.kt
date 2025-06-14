@@ -40,11 +40,11 @@ fun CurrentTempRoute(
         viewModel.effectFlow.collect {effect ->
             when(effect) {
                 is TempDetailsEffect.NavigateToTempDetails -> {
-                    if (isFeatureEnabled) {
+//                    if (isFeatureEnabled) {
                         navController.navigate(Screen.TempDetails.route)
-                    } else {
-                        Toast.makeText(context, context.getString(R.string.feature_not_available), Toast.LENGTH_SHORT).show()
-                    }
+//                    } else {
+//                        Toast.makeText(context, context.getString(R.string.feature_not_available), Toast.LENGTH_SHORT).show()
+//                    }
                 }
                 else -> {}
             }

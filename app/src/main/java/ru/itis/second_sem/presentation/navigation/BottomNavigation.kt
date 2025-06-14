@@ -26,6 +26,7 @@ fun BottomNavigation(
     val listItems = listOf(
         BottomItem.WeatherScreen,
         BottomItem.GraphScreen,
+        BottomItem.CustomViewItem
     )
 
     androidx.compose.material.BottomNavigation(
@@ -43,7 +44,7 @@ fun BottomNavigation(
                 icon = {
                     Icon(
                         painter = painterResource(id = item.iconId),
-                        contentDescription = "Icon",
+                        contentDescription = item.title,
                         modifier = Modifier.size(24.dp))
                 },
                 label = {
