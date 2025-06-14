@@ -15,9 +15,9 @@ class UserRepositoryImpl @Inject constructor(
     private val ioDispatchers: CoroutineDispatcher
 ): UserRepository {
 
-    override suspend fun insertUser(user: User) {
+    override suspend fun insertUser(user: User): Int {
         return withContext(ioDispatchers) {
-            userDao.insertUser(user = user.toEntity())
+            userDao.insertUser(user = user.toEntity()).toInt()
         }
     }
 

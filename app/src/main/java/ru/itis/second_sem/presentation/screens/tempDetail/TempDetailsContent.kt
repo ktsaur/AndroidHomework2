@@ -56,6 +56,7 @@ import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import ru.itis.second_sem.R
 import ru.itis.second_sem.domain.model.ForecastModel
+import ru.itis.second_sem.presentation.base.MainActivity
 import ru.itis.second_sem.presentation.navigation.Screen
 import ru.itis.second_sem.presentation.utils.CityValidationException
 import java.io.IOException
@@ -396,7 +397,7 @@ fun ErrorAlertDialog(ex: Throwable, context: Context, onConfirmBack: () -> Unit)
 
 private fun splitForecast(forecast: List<ForecastModel>): List<List<ForecastModel>> {
     val indicesOfMidnight = forecast.mapIndexedNotNull { index, forecastModel ->
-        if (forecastModel.dt == "01:00") index else null
+        if (forecastModel.dt == "00:00") index else null
     }
     return listOf(
         forecast.take(indicesOfMidnight[0]),

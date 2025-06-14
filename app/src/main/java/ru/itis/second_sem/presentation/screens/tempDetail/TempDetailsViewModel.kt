@@ -1,8 +1,5 @@
 package ru.itis.second_sem.presentation.screens.tempDetail
 
-import android.content.Context
-import android.util.Log
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +12,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.itis.auth.R
-import ru.itis.auth.presentation.registration.RegistrationEffect
 import ru.itis.second_sem.data.database.InceptionDatabase
 import ru.itis.second_sem.data.database.entity.QueryHistoryEntity
 import ru.itis.second_sem.data.database.entity.WeatherApiEntity
@@ -38,7 +34,6 @@ class TempDetailsViewModel @Inject constructor(
 
     private val _effectFlow = MutableSharedFlow<TempDetailsEffect>()
     val effectFlow = _effectFlow.asSharedFlow()
-
 
     fun onEvent(event: TempDetailsEvent) {
         when(event) {
