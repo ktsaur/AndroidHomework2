@@ -40,6 +40,12 @@
     <string name="default_category">Default category</string>
     <string name="access_to_feature_closed">Доступ к фиче закрыт, сначала авторизируйтесь</string>
     <string name="you_are_on_the_feature_screen">Вы уже на экране этой фичи</string>
+    <string name="error_default">error</string>
+    <string name="error_sectors_count">Количество секторов должно быть от 2 до 7</string>
+    <string name="error_values_colors_mismatch">Количество значений должно совпадать с количеством цветов</string>
+    <string name="error_unique_colors">Все цвета должны быть уникальными</string>
+    <string name="error_values_range">Все значения должны быть в диапазоне от 1 до 100</string>
+    <string name="percentage_format">%d%%</string>
 
 
 
